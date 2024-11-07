@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:picking_app/bloc/common_bloc.dart';
+import 'package:picking_app/config/app_colors.dart';
 import 'package:picking_app/config/router/app_router.dart';
 import 'package:picking_app/repository/auth_repository.dart';
 
@@ -30,7 +31,12 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         routerConfig: appRouter,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple,
+            primary: AppColors.primaryBlue,
+            secondary: AppColors.secondaryBlue,
+            tertiary: AppColors.primaryYellow
+          ),
           useMaterial3: true,
         )
       ),

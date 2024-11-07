@@ -25,14 +25,14 @@ class CommonBloc {
 
   // Lista de BlocProviders para proveer a toda la aplicación
   List<BlocProvider> get blocProviders => [
-    BlocProvider<AuthBloc>(
-      create: (context) => authBloc
-    )
+    BlocProvider<AuthBloc>(create: (context) => authBloc)
+    // Agrega otros BlocProviders aqui según lo necesites, sin duplicar AuthBloc
   ];
 
   // Método para cerrar el bloc cuando no se necesite más
   void dispose(){
     authBloc.close();
+    // Cerrar otros blocs aqui si es necesario
   }
   
 }

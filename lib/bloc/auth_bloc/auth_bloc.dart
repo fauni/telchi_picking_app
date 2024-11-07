@@ -10,6 +10,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
 
     AuthBloc(this.authRepository) : super(AuthInitial()) {
         on<LoginRequested>(_onLoginRequested);
+        on<LoginEvent>(_onLogin);
+        on<LogoutEvent>(_onLogout);
     }
 
     Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
@@ -17,6 +19,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         try {
             final ApiResponse<ResultadoLogin> response = await authRepository.login(event.data);
             if(response.isSuccessful && response.resultado != null){
+                await authRepository.saveUserData(
+                  response.resultado!.usuario!, 
+                  response.resultado!.token!, 
+                  response.resultado!.sapSessionId!
+                );
+                emit(Authenticated(response.resultado!.usuario!));
                 emit(AuthSuccess(response));
             }else {
                 emit(AuthFailure(response.errorMessages?.first ?? "An unknow error ocurred"));
@@ -24,5 +32,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         } catch (e){
             emit(AuthFailure(e.toString()));
         }
+    }
+
+    Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
+      await authRepository.saveUserData(event.usuario, event.token, event.tokenSap);
+      emit(Authenticated(event.usuario));
+    }
+
+    Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async
+    {
+      await authRepository.clearUserData();
+      emit(Unauthenticated());
+    }
+
+    Future<void> checkUserSession()async{
+      final user = await authRepository.getUserData();
+      final token = await authRepository.getToken();
+      final tokenSap = await authRepository.getTokenSap();
+      if (user != null && token != null && tokenSap != null) {
+        add(LoginEvent(user, token, tokenSap));
+      } else {
+        // ignore: invalid_use_of_visible_for_testing_member
+        emit(Unauthenticated());
+      }
     }
 }

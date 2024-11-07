@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:picking_app/models/api_response_model.dart';
 import 'package:picking_app/models/auth/resultado_login_model.dart';
+import 'package:picking_app/models/auth/usuario_model.dart';
 
 abstract class AuthState extends Equatable {
   @override
@@ -27,3 +28,12 @@ class AuthFailure extends AuthState {
   @override
   List<Object> get props=> [message];
 }
+
+class Authenticated extends AuthState {
+  final Usuario usuario;
+  Authenticated(this.usuario);
+
+  @override
+  List<Object> get props => [usuario];
+}
+class Unauthenticated extends AuthState {}
