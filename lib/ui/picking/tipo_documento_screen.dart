@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:picking_app/config/router/app_router.dart';
 import 'package:picking_app/ui/widgets/app_bar_widget.dart';
 import 'package:picking_app/ui/widgets/button_tipo_documento.dart';
 

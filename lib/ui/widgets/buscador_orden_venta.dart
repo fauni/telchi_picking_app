@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:picking_app/ui/widgets/button_generic_alone_icon.dart';
 
 class BuscadorOrdenVenta extends StatelessWidget {
+  final String textoHint;
+  final IconData iconoBoton;
   final TextEditingController controllerSearch;
   final Function onSearch;
 
   const BuscadorOrdenVenta({
     super.key,
+    required this.textoHint,
+    required this.iconoBoton,
     required this.controllerSearch,
     required this.onSearch,
   });
@@ -21,8 +25,8 @@ class BuscadorOrdenVenta extends StatelessWidget {
             child: TextField(
               controller: controllerSearch,
               decoration: InputDecoration(
-                hintText: 'Buscar Documento',
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.tertiary),
+                hintText: textoHint,
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                 border: const UnderlineInputBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
@@ -30,13 +34,13 @@ class BuscadorOrdenVenta extends StatelessWidget {
                   ),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.onTertiary.withOpacity(0.3),
+                fillColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
               ),
               onSubmitted: (value) => onSearch(),
             ),
           ),
           ButtonGenericAloneIcon(
-            icon: Icons.calendar_month,
+            icon: iconoBoton,
             height: 48,
             onPressed: () => onSearch(),
           ),

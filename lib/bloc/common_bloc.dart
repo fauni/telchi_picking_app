@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/repository/auth_repository.dart';
+import 'package:picking_app/repository/orden_venta_repository.dart';
 
 class CommonBloc {
   // Instancia singleton de CommonBloc
@@ -17,22 +18,29 @@ class CommonBloc {
 
   // Instancia del AuthBloc
   late final AuthBloc authBloc;
+  late final OrdenVentaBloc ordenVentaBloc;
 
   // Métdo de inicialilzación para pasar el AuthRepository, para mayor flexibilidad
-  void init(AuthRepository authRepository){
+  void init(
+    AuthRepository authRepository,
+    OrdenVentaRepository ordenVentaRepository
+  ){
     authBloc = AuthBloc(authRepository);
+    ordenVentaBloc = OrdenVentaBloc(ordenVentaRepository);
   }
 
   // Lista de BlocProviders para proveer a toda la aplicación
   List<BlocProvider> get blocProviders => [
-    BlocProvider<AuthBloc>(create: (context) => authBloc)
+    BlocProvider<AuthBloc>(create: (context) => authBloc),
     // Agrega otros BlocProviders aqui según lo necesites, sin duplicar AuthBloc
+    BlocProvider<OrdenVentaBloc>(create: (context) => ordenVentaBloc,)
   ];
 
   // Método para cerrar el bloc cuando no se necesite más
   void dispose(){
     authBloc.close();
     // Cerrar otros blocs aqui si es necesario
+    ordenVentaBloc.close();
   }
   
 }

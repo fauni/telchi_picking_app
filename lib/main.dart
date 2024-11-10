@@ -5,14 +5,16 @@ import 'package:picking_app/bloc/common_bloc.dart';
 import 'package:picking_app/config/app_colors.dart';
 import 'package:picking_app/config/router/app_router.dart';
 import 'package:picking_app/repository/auth_repository.dart';
+import 'package:picking_app/repository/orden_venta_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
   final authRepository = AuthRepository();
+  final ordenVentaRepository = OrdenVentaRepository();
   final commonBloc = CommonBloc();
-  commonBloc.init(authRepository);
+  commonBloc.init(authRepository, ordenVentaRepository);
 
   runApp(MyApp(commonBloc: commonBloc));
 }

@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: // Theme.of(context).colorScheme.primary,
+      backgroundColor: const Color.fromRGBO(247, 247, 247, 1),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -34,31 +34,31 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               // Sección superior con logo y título
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 40),
-                color: Theme.of(context).colorScheme.onPrimary,
-                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                // color: Theme.of(context).colorScheme.onPrimary,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(
-                      'assets/logos/telchi_logo_horizontal.jpg',
-                      height: 200,
+                    Center(
+                      child: Image.asset(
+                        'assets/logos/telchi_logo_horizontal.jpg',
+                        height: 150,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       'Bienvenido a:',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w100,
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
-                      'PICKING FACIL',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 30,
-                        fontWeight: FontWeight.w400,
+                    Container(
+                      width: double.infinity,
+                      child: Image.asset(
+                        'assets/logos/logo_piking_facil.png',
+                        height: 100,
                       ),
                     ),
                   ],
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         hintText: 'Ingrese su Nombre de Usuario',
                         hintStyle: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-                        filled: true,
+                        filled: false,
                         fillColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
                         labelText: "Nombre de Usuario",
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         hintText: 'Ingrese su Contraseña',
                         hintStyle: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-                        filled: true,
+                        filled: false,
                         fillColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
                         labelText: "Contraseña",
                         labelStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),

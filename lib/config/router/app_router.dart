@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
+import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/auth/login_screen.dart';
 import 'package:picking_app/ui/main/home_screen.dart';
+import 'package:picking_app/ui/picking/detalle_orden_venta_screen.dart';
 import 'package:picking_app/ui/picking/tipo_documento_screen.dart';
 import 'package:picking_app/ui/tipo_documento/buscar_orden_venta_screen.dart';
 
@@ -23,6 +25,13 @@ final appRouter = GoRouter(
       path: '/ordenventa',
       builder: (context, state) => const BuscarOrdenVentaScreen(),
     ),
+    GoRoute(
+      path: '/detalleordenventa',
+      builder: (context, state) {
+        ResultadoOrdenVentaModel data = state.extra as ResultadoOrdenVentaModel;
+        return DetalleOrdenVentaScreen(orden: data);
+      },
+    )
   ]
 );
 

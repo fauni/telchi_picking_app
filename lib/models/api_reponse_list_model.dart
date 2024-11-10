@@ -1,29 +1,31 @@
-class ApiResponse<T> {
+class ApiResponseList<T> {
   final int statusCode;
   final bool isSuccessful;
   final List<String>? errorMessages;
-  final T? resultado;
+  final List<T>? resultado;
 
-  ApiResponse({
+  ApiResponseList({
     required this.statusCode,
     required this.isSuccessful,
     this.errorMessages,
     this.resultado,
   });
 
-  // Método factory para construir ApiResponse desde JSON para un solo objeto
-  factory ApiResponse.fromJson(
+  // Método factory para construir ApiResponseList desde JSON para una lista de objetos
+  factory ApiResponseList.fromJson(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) createResultado,
   ) {
-    return ApiResponse<T>(
+    return ApiResponseList<T>(
       statusCode: json["statusCode"],
       isSuccessful: json["isSuccessful"],
       errorMessages: json["errorMessages"] != null
           ? List<String>.from(json['errorMessages'])
           : null,
       resultado: json["resultado"] != null
-          ? createResultado(json["resultado"])
+          ? (json["resultado"] as List)
+              .map((item) => createResultado(item))
+              .toList()
           : null,
     );
   }

@@ -11,18 +11,20 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(''),
-          // backgroundColor: Theme.of(context).colorScheme.tertiary,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  // Emite el evento de logout
-                  context.read<AuthBloc>().add(LogoutEvent());
-                },
-                icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary,))
-          ],
-        ),
+      backgroundColor: const Color.fromRGBO(247, 247, 247, 1),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.tertiary,
+        title: const Text(''),
+        // backgroundColor: Theme.of(context).colorScheme.tertiary,
+        actions: [
+          IconButton(
+              onPressed: () {
+                // Emite el evento de logout
+                context.read<AuthBloc>().add(LogoutEvent());
+              },
+              icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary,))
+        ],
+      ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -34,13 +36,7 @@ class HomeScreen extends StatelessWidget {
                 width: 150,
               ),
             ),
-            Text(
-              'PICKING FACIL',
-              style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.tertiary),
-            ),
+            Image.asset('assets/logos/logo_piking_facil.png'),
             const SizedBox(
               height: 20,
             ),
