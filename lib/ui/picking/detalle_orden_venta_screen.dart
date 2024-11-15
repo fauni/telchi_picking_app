@@ -1,10 +1,15 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/widgets/app_bar_widget.dart';
 import 'package:picking_app/ui/widgets/buscador_orden_venta.dart';
+import 'package:picking_app/ui/widgets/generic_dialog_loading.dart';
 import 'package:picking_app/ui/widgets/item_detalle_widget.dart';
 import 'package:picking_app/ui/widgets/item_list_detalle_orden_venta.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class DetalleOrdenVentaScreen extends StatefulWidget {
   final ResultadoOrdenVentaModel orden;
@@ -20,17 +25,26 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
 
   List<String> estados = ['Todos','Completados', 'Pendientes', 'Incompletos'];
   String estadoSeleccionado = 'Todos';
-
+  bool conteoIniciado = false;
 
   @override
   void initState() {
     super.initState();
+    validaEstadoConteo();
   }
 
   @override
   void dispose() {
     controllerSearch.dispose();
     super.dispose();
+  }
+
+  void validaEstadoConteo(){
+    if(widget.orden.documento == null){
+      conteoIniciado = false;
+    } else{
+      conteoIniciado = true;
+    }
   }
 
   @override
@@ -78,7 +92,23 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                     textoHint: 'Escanear o ingresar código',
                     iconoBoton: Icons.qr_code_scanner,
                     controllerSearch: controllerSearch,
-                    onSearch: controllerSearch.text.isNotEmpty ? () {} : () {}),
+                    onSearch: ()async {
+                      String? res = await SimpleBarcodeScanner.scanBarcode(
+                        context,
+                        barcodeAppBar: const BarcodeAppBar(
+                          appBarTitle: 'Test',
+                          centerTitle: false,
+                          enableBackButton: true,
+                          backButtonIcon: Icon(Icons.arrow_back_ios)
+                        ),
+                        isShowFlashIcon: true,
+                        delayMillis: 2000,
+                        cameraFace: CameraFace.front,
+                      );
+                      setState(() {
+                        // result = res as String;
+                      });
+                    }),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
@@ -124,26 +154,73 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
           ),
           Container(
             padding: const EdgeInsets.all(5),
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              label: const Text('INICIAR CONTEO'),
-              icon: const Icon(
-                Icons.play_arrow_outlined,
-                size: 40,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                // padding: const EdgeInsets.symmetric(vertical: 16),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            child: BlocListener<DocumentoBloc, DocumentoState>(
+              listener: (context, state) {
+                if(state is DocumentLoading){
+                  // Mostrar el dialogo de carga
+                  GenericDialogLoading.show(context: context, message: "Creando documento...");
+                } else if (state is DocumentSuccess){
+                  // Cerrar el dialogo y mostrar el éxito
+                  GenericDialogLoading.close();
+                  setState(() {
+                    conteoIniciado = true;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Conteo iniciado con éxito,'))
+                  );
+                } else if(state is DocumentFailure){
+                  // Cerrar el dialogo y mostrar el error
+                  GenericDialogLoading.close();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: ${state.error}'))
+                  );
+                }
+              },
+              child: conteoIniciado 
+              ? ElevatedButton.icon(
+                onPressed: () async {
+                  context.pop();
+                },
+                label: const Text('GUARDAR Y SALIR'),
+                icon: const Icon(
+                  Icons.pause,
+                  size: 40,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  // padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              )
+              
+              : ElevatedButton.icon(
+                onPressed: () async {
+                  context.read<DocumentoBloc>().add(CreateDocumentFromSAP(docNum: widget.orden.docNum.toString(), tipoDocumento: widget.orden.docType!));
+                },
+                label: const Text('INICIAR CONTEO'),
+                icon: const Icon(
+                  Icons.play_arrow_outlined,
+                  size: 40,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  // padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ),
           )
         ],
       ),
+
     );
   }
 

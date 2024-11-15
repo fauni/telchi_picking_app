@@ -15,6 +15,7 @@ class BuscarOrdenVentaScreen extends StatefulWidget {
 }
 
 class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
+  DateTime? selectedDate;
   TextEditingController controllerSearch = TextEditingController();
 
   @override
@@ -38,6 +39,23 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
         .add(ObtenerOrdenesVentaBySearch(controllerSearch.text));
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      locale: const Locale("es", "ES"), // Configura el locale en español
+
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        controllerSearch.text = "${picked.toLocal()}".split(' ')[0]; // Formato de fecha
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,14 +67,12 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
               textoHint: 'Buscar documento',
               iconoBoton: Icons.calendar_month_outlined,
               controllerSearch: controllerSearch,
-              onSearch: controllerSearch.text.isNotEmpty
-                  ? cargarOrdenesBySearch
-                  : cargarOrdenes),
+              onSearch: () => _selectDate(context)
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton.icon(
-              onPressed: () {
-                controllerSearch.text.isNotEmpty 
+              onPressed: () {controllerSearch.text.isNotEmpty 
                   ? cargarOrdenesBySearch()
                   : cargarOrdenes();
               },

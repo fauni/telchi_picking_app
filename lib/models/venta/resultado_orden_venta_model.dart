@@ -1,3 +1,5 @@
+import 'package:picking_app/models/picking/documento_model.dart';
+
 class ResultadoOrdenVentaModel {
     final int? docEntry;
     final int? docNum;
@@ -9,6 +11,8 @@ class ResultadoOrdenVentaModel {
     final double? docTotal;
     final String? docCurrency;
     final String? comments;
+    final String? documentStatus;
+    final Documento? documento;
     final List<DocumentLineOrdenVenta>? documentLines;
 
     ResultadoOrdenVentaModel({
@@ -22,6 +26,8 @@ class ResultadoOrdenVentaModel {
         this.docTotal,
         this.docCurrency,
         this.comments,
+        this.documentStatus,
+        this.documento,
         this.documentLines,
     });
 
@@ -36,6 +42,8 @@ class ResultadoOrdenVentaModel {
         double? docTotal,
         String? docCurrency,
         String? comments,
+        String? documentStatus,
+        Documento? documento,
         List<DocumentLineOrdenVenta>? documentLines,
     }) => 
         ResultadoOrdenVentaModel(
@@ -49,6 +57,8 @@ class ResultadoOrdenVentaModel {
             docTotal: docTotal ?? this.docTotal,
             docCurrency: docCurrency ?? this.docCurrency,
             comments: comments ?? this.comments,
+            documentStatus: documentStatus ?? this.documentStatus,
+            documento: documento ?? this.documento,
             documentLines: documentLines ?? this.documentLines,
         );
 
@@ -63,6 +73,8 @@ class ResultadoOrdenVentaModel {
         docTotal: json["docTotal"]?.toDouble(),
         docCurrency: json["docCurrency"],
         comments: json["comments"],
+        documentStatus: json["documentStatus"],
+        documento: json["documento"] == null ? null : Documento.fromJson(json["documento"]),
         documentLines: json["documentLines"] == null ? [] : List<DocumentLineOrdenVenta>.from(json["documentLines"]!.map((x) => DocumentLineOrdenVenta.fromJson(x))),
     );
 
@@ -77,6 +89,8 @@ class ResultadoOrdenVentaModel {
         "docTotal": docTotal,
         "docCurrency": docCurrency,
         "comments": comments,
+        "documentStatus": documentStatus,
+        "documento": documento?.toJson(),
         "documentLines": documentLines == null ? [] : List<dynamic>.from(documentLines!.map((x) => x.toJson())),
     };
 }

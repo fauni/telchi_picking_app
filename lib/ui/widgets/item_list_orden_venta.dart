@@ -21,12 +21,14 @@ class ItemListOrdenVenta extends StatelessWidget {
       child: Row(
           children: [
             CircleAvatar(
-              backgroundColor: getEstado() == 'Abierto' 
+              backgroundColor: orden.documento == null
                 ? Colors.grey[300]
-                : Theme.of(context).colorScheme.onTertiary,
+                : Theme.of(context).colorScheme.tertiary,
               child: IconButton(
                 onPressed: (){
-                  context.push('/detalleordenventa', extra: orden);
+                  if(orden.documentStatus != 'bost_Close'){
+                    context.push('/detalleordenventa', extra: orden);
+                  }
                   // Navigator.of(context).push(
                   //   MaterialPageRoute(
                   //     builder: (context) {
@@ -77,14 +79,14 @@ class ItemListOrdenVenta extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Estado de Conteo: ', style: Theme.of(context).textTheme.titleSmall,),
-                      const Text('Sin iniciar')
+                      orden.documento == null ? const Text('Sin Iniciar') : Text(getEstado(orden.documento!.estadoConteo!))
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Estado del Documento: ', style: Theme.of(context).textTheme.titleSmall,),
-                      Text(getEstado())
+                      Text(getEstadoOrden(orden.documentStatus!), style: TextStyle(color: orden.documentStatus == 'bost_Close' ? Colors.red: Colors.green),)
                     ],
                   ),
                   status == 'Autorizado' ? const Divider() : const SizedBox(),
@@ -116,15 +118,25 @@ class ItemListOrdenVenta extends StatelessWidget {
     );
   }
 
-  String getEstado(){
+  String getEstado(String estado){
     String estadoGeneral = 'Abierto';
-    // if(pedido.estado == 'bost_Close' && pedido.estadoCancelado == 'csYes'){
-    //   estadoGeneral = 'Cancelado';
-    // } else if (pedido.estadoCancelado == 'csNo' && pedido.estado == 'bost_Close'){
-    //   estadoGeneral = 'Cerrado';
-    // } else {
-    //   estadoGeneral = 'Abierto';
-    // }
+    if(estado == 'P'){
+      estadoGeneral = 'Pendiente';
+    } else if (estado == 'I'){
+      estadoGeneral = 'En Proceso';
+    } else {
+      estadoGeneral = 'Completado';
+    }
+    return estadoGeneral;
+  }
+
+  String getEstadoOrden(String estado){
+    String estadoGeneral = '';
+    if(estado == 'bost_Close'){
+      estadoGeneral = 'Cerrado';
+    } else {
+      estadoGeneral = 'Abierto';
+    }
     return estadoGeneral;
   }
 }
