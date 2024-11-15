@@ -1,18 +1,19 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/widgets/button_generic_widget.dart';
 
 class ItemListOrdenVenta extends StatelessWidget {
-  const ItemListOrdenVenta({
+  ItemListOrdenVenta({
     super.key,
     required this.orden,
-    required this.status
+    required this.status,
+    required this.onOpen
   });
 
   final ResultadoOrdenVentaModel orden;
   final String status;
+  VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +26,7 @@ class ItemListOrdenVenta extends StatelessWidget {
                 ? Colors.grey[300]
                 : Theme.of(context).colorScheme.tertiary,
               child: IconButton(
-                onPressed: (){
-                  if(orden.documentStatus != 'bost_Close'){
-                    context.push('/detalleordenventa', extra: orden);
-                  }
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(
-                  //     builder: (context) {
-                  //       return DetallePedidoPage(pedido: pedido);
-                  //     },
-                  //     fullscreenDialog: true
-                  //   )
-                  // );
-                }, 
+                onPressed: onOpen, 
                 icon: const Icon(Icons.remove_red_eye_sharp)
               ),
             ),

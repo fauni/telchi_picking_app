@@ -6,6 +6,7 @@ class BuscadorOrdenVenta extends StatelessWidget {
   final IconData iconoBoton;
   final TextEditingController controllerSearch;
   final Function onSearch;
+  final Function(String)? onSubmitted; // Nuevo parametro agregado
 
   const BuscadorOrdenVenta({
     super.key,
@@ -13,6 +14,7 @@ class BuscadorOrdenVenta extends StatelessWidget {
     required this.iconoBoton,
     required this.controllerSearch,
     required this.onSearch,
+    this.onSubmitted
   });
 
   @override
@@ -36,7 +38,7 @@ class BuscadorOrdenVenta extends StatelessWidget {
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
               ),
-              onSubmitted: (value) => onSearch(),
+              onSubmitted: onSubmitted,
             ),
           ),
           ButtonGenericAloneIcon(
@@ -44,11 +46,6 @@ class BuscadorOrdenVenta extends StatelessWidget {
             height: 48,
             onPressed: () => onSearch(),
           ),
-          // ButtonGenericAloneIcon(
-          //   icon: Icons.search,
-          //   height: 48,
-          //   onPressed: () => onSearch(),
-          // ),
         ],
       ),
     );

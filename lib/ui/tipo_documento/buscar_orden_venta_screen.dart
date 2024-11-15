@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/widgets/app_bar_widget.dart';
@@ -16,6 +17,8 @@ class BuscarOrdenVentaScreen extends StatefulWidget {
 
 class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
   DateTime? selectedDate;
+  late OrdenVentaBloc ordenVentaBloc; // Guardar la referencia al Bloc
+
   TextEditingController controllerSearch = TextEditingController();
 
   @override
@@ -24,6 +27,12 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
     cargarOrdenes();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Obtener la referencia al Bloc y guardarla
+    ordenVentaBloc = BlocProvider.of<OrdenVentaBloc>(context);
+  }
   @override
   void dispose() {
     controllerSearch.dispose();
@@ -46,12 +55,12 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
       locale: const Locale("es", "ES"), // Configura el locale en español
-
     );
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        controllerSearch.text = "${picked.toLocal()}".split(' ')[0]; // Formato de fecha
+        controllerSearch.text =
+            "${picked.toLocal()}".split(' ')[0]; // Formato de fecha
       });
     }
   }
@@ -59,7 +68,8 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(247, 247, 247, 1), // const Color.fromARGB(255, 204, 216, 226),
+      backgroundColor: const Color.fromRGBO(
+          247, 247, 247, 1), // const Color.fromARGB(255, 204, 216, 226),
       appBar: const AppBarWidget(titulo: 'Orden de Venta'),
       body: Column(
         children: [
@@ -67,14 +77,14 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
               textoHint: 'Buscar documento',
               iconoBoton: Icons.calendar_month_outlined,
               controllerSearch: controllerSearch,
-              onSearch: () => _selectDate(context)
-          ),
+              onSearch: () => _selectDate(context)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton.icon(
-              onPressed: () {controllerSearch.text.isNotEmpty 
-                  ? cargarOrdenesBySearch()
-                  : cargarOrdenes();
+              onPressed: () {
+                controllerSearch.text.isNotEmpty
+                    ? cargarOrdenesBySearch()
+                    : cargarOrdenes();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -119,7 +129,8 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
               } else if (state is OrdenVentaCargada) {
                 return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ListaDocumentosOrdenVenta(ordenes: state.response.resultado!));
+                    child: ListaDocumentosOrdenVenta(
+                        ordenes: state.response.resultado!, ordenVentaBloc: ordenVentaBloc,));
               } else {
                 return NotFoundInformationWidget(
                   mensaje: 'No se encontraron registros',
@@ -139,9 +150,12 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
 
 // ignore: must_be_immutable
 class ListaDocumentosOrdenVenta extends StatelessWidget {
-  ListaDocumentosOrdenVenta({super.key, required this.ordenes});
+  ListaDocumentosOrdenVenta({super.key, required this.ordenes, required this.ordenVentaBloc,
+});
 
   List<ResultadoOrdenVentaModel> ordenes;
+    final OrdenVentaBloc ordenVentaBloc;
+
 
   @override
   Widget build(BuildContext context) {
@@ -153,11 +167,25 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
               decoration: BoxDecoration(
-                  color: Colors.white,// color: Theme.of(context).colorScheme.,
+                  color: Colors.white, // color: Theme.of(context).colorScheme.,
                   borderRadius: BorderRadius.circular(10)),
               child: ItemListOrdenVenta(
                 orden: orden,
                 status: 'Pendiente',
+                onOpen: () async {
+                  if (orden.documentStatus != 'bost_Close') {
+                    final result = await context.push('/detalleordenventa', extra: orden);
+                    if(result == true) {
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp){
+                        ordenVentaBloc.add(ObtenerOrdenesVenta());
+                      });
+
+                    }
+
+                    print('Retornando');
+                    print(result);
+                  }
+                },
               ));
         },
         separatorBuilder: (context, index) {

@@ -6,6 +6,7 @@ import 'package:picking_app/bloc/common_bloc.dart';
 import 'package:picking_app/config/app_colors.dart';
 import 'package:picking_app/config/router/app_router.dart';
 import 'package:picking_app/repository/auth_repository.dart';
+import 'package:picking_app/repository/detalle_documento_repository.dart';
 import 'package:picking_app/repository/documento_repository.dart';
 import 'package:picking_app/repository/orden_venta_repository.dart';
 
@@ -16,8 +17,9 @@ Future<void> main() async {
   final authRepository = AuthRepository();
   final ordenVentaRepository = OrdenVentaRepository();
   final documentoRepository = DocumentoRepository();
+  final detalleDocumentoRepository = DetalleDocumentoRepository();
   final commonBloc = CommonBloc();
-  commonBloc.init(authRepository, ordenVentaRepository, documentoRepository);
+  commonBloc.init(authRepository, ordenVentaRepository, documentoRepository, detalleDocumentoRepository);
 
   runApp(MyApp(commonBloc: commonBloc));
 }

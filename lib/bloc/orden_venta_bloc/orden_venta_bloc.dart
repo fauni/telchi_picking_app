@@ -10,6 +10,7 @@ class OrdenVentaBloc extends Bloc<OrdenVentaEvent, OrdenVentaState>{
   OrdenVentaBloc(this.repository): super(OrdenVentaInicial()){
     on<ObtenerOrdenesVenta>(_onObtenerOrdenesVenta);
     on<ObtenerOrdenesVentaBySearch>(_onObtenerOrdenesVentaBySearch);
+    on<ObtenerOrdenVentaByDocNum>(_onObtenerOrdenVentaPorDocNum);
   }
 
   Future<void> _onObtenerOrdenesVenta(ObtenerOrdenesVenta event, Emitter<OrdenVentaState> emit) async {
@@ -39,6 +40,24 @@ class OrdenVentaBloc extends Bloc<OrdenVentaEvent, OrdenVentaState>{
       }
     } catch (e) {
       emit(OrdenVentaError("Error al buscar las órdenes de venta: $e"));
+    }
+  }
+
+  // Método para manejar el evento de obtener una orden de venta específica por docNum
+  Future<void> _onObtenerOrdenVentaPorDocNum(
+      ObtenerOrdenVentaByDocNum event, Emitter<OrdenVentaState> emit) async {
+    emit(OrdenVentaCargando()); // Emitir estado de carga
+
+    try {
+      final response = await repository.obtenerOrdenVentaPorDocNum(event.docNum);
+
+      if (response.isSuccessful && response.resultado != null) {
+        emit(OrdenVentaPorDocNumCargada(response.resultado!)); // Emitir estado con la orden cargada
+      } else {
+        emit(OrdenVentaError(response.errorMessages?.first ?? 'Error al obtener la orden de venta'));
+      }
+    } catch (e) {
+      emit(OrdenVentaError('Error al obtener la orden de venta: $e')); // Emitir estado de error en caso de excepción
     }
   }
 }

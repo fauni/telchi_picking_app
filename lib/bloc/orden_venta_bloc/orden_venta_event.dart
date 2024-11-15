@@ -16,3 +16,13 @@ class ObtenerOrdenesVentaBySearch extends OrdenVentaEvent {
   @override
   List<Object> get props => [search];
 }
+
+// Nuevo evento para obtener una orden por DocNum
+class ObtenerOrdenVentaByDocNum extends OrdenVentaEvent {
+  final String docNum;
+
+  const ObtenerOrdenVentaByDocNum(this.docNum);
+
+  @override
+  List<Object> get props => [docNum];
+}
