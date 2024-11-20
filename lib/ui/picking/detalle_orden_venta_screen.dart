@@ -16,8 +16,8 @@ import 'package:picking_app/ui/widgets/item_list_detalle_orden_venta.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class DetalleOrdenVentaScreen extends StatefulWidget {
-  ResultadoOrdenVentaModel orden;
   DetalleOrdenVentaScreen({super.key, required this.orden});
+  ResultadoOrdenVentaModel orden;
 
   @override
   State<DetalleOrdenVentaScreen> createState() =>
@@ -30,6 +30,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   List<String> estados = ['Todos', 'Completados', 'Pendientes', 'Incompletos'];
   String estadoSeleccionado = 'Todos';
   bool conteoIniciado = false;
+  bool conteoFinalizado = false;
 
   @override
   void initState() {
@@ -47,8 +48,15 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   void validaEstadoConteo() {
     if (widget.orden.documento == null) {
       conteoIniciado = false;
+      conteoFinalizado = false;
     } else {
-      conteoIniciado = true;
+      if (widget.orden.documento!.estadoConteo == 'F') {
+        conteoIniciado = false;
+        conteoFinalizado = true;
+      } else {
+        conteoIniciado = true;
+        conteoFinalizado = false;
+      }
     }
   }
 
@@ -83,8 +91,8 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
               ),
               child: const Text('Salir'),
               onPressed: () {
-                Navigator.pop(context, true);
-                Navigator.pop(context, true);
+                Navigator.pop(context);
+                Navigator.pop(context);
               },
             ),
           ],
@@ -92,12 +100,28 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
       },
     );
   }
+
+  void verificaSiTodosCompletados() {
+    bool esCompletado = true;
+    int totalCompletados = 0;
+    widget.orden.documento?.detalles?.forEach((item) {
+      if (item.estado == 'Completado') {
+        totalCompletados++;
+      }
+    });
+    if (widget.orden.documento!.detalles!.length == totalCompletados) {
+      conteoFinalizado = true;
+    } else {
+      esCompletado = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if(didPop){
+        if (didPop) {
           return;
         }
         _showBackDialog();
@@ -106,7 +130,14 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
       child: Scaffold(
         backgroundColor: const Color.fromRGBO(
             247, 247, 247, 1), //backgroundColor: Colors.blue[50],
-        appBar: AppBarWidget(titulo: '${widget.orden.docNum}'),
+        appBar: AppBarWidget(
+          titulo: '${widget.orden.docNum}',
+          icon: Icons.playlist_add_check_sharp,
+          onPush: () {
+            verificaSiTodosCompletados();
+            // refrescarOrden();
+          },
+        ),
         body: BlocConsumer<OrdenVentaBloc, OrdenVentaState>(
           listener: (context, state) {
             if (state is OrdenVentaPorDocNumCargada) {
@@ -146,7 +177,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 valor: widget.orden.docNum.toString(),
                               ),
                               ItemDetalleColumnWidget(
-                                titulo: 'Proveedor',
+                                titulo: 'Proveedor ',
                                 valor:
                                     '${widget.orden.cardCode} - ${widget.orden.cardName}',
                               ),
@@ -166,11 +197,11 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                   .orden.documentLines!
                                   .firstWhere((item) => item.itemCode == value,
                                       orElse: () => DocumentLineOrdenVenta());
-                              final detalleConteoEncontrado = widget
-                                  .orden.documento!.detalles!
-                                  .firstWhere((item) => item.codigoItem == value,
+                              final detalleConteoEncontrado =
+                                  widget.orden.documento!.detalles!.firstWhere(
+                                      (item) => item.codigoItem == value,
                                       orElse: () => DetalleDocumento());
-      
+
                               if (detalleEncontrado.itemCode != null) {
                                 // Mostrar el diálogo si se encuentra el detalle
                                 _mostrarDialogoCantidad(context,
@@ -179,7 +210,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(
-                                          'El código $value no se encuentra en la lista.')),
+                                          'El código $value no se encuentra en la lista.'), backgroundColor: Colors.red,),
                                 );
                               }
                             },
@@ -196,7 +227,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 delayMillis: 2000,
                                 cameraFace: CameraFace.back,
                               );
-      
+
                               // Si el resultado del escaneo no es nulo
                               if (res != null && res.isNotEmpty) {
                                 final detalleEncontrado =
@@ -204,13 +235,14 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                   (item) => item.itemCode == res,
                                   orElse: () => DocumentLineOrdenVenta(),
                                 );
-      
-                                final detalleConteoEncontrado =
-                                    widget.orden.documento?.detalles?.firstWhere(
+
+                                final detalleConteoEncontrado = widget
+                                    .orden.documento?.detalles
+                                    ?.firstWhere(
                                   (item) => item.codigoItem == res,
                                   orElse: () => DetalleDocumento(),
                                 );
-      
+
                                 // Verifica si el detalle fue encontrado
                                 if (detalleEncontrado.itemCode != null) {
                                   // Abre el diálogo para agregar cantidad
@@ -224,7 +256,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                          'El código $res no se encuentra en la lista.'),
+                                          'El código $res no se encuentra en la lista.'), backgroundColor: Colors.red,
                                     ),
                                   );
                                 }
@@ -233,11 +265,11 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
-                                        'No se pudo leer el código de barras. Inténtelo nuevamente.'),
+                                        'No se pudo leer el código de barras. Inténtelo nuevamente.'), backgroundColor: Colors.red,
                                   ),
                                 );
                               }
-      
+
                               setState(() {});
                             }),
                         Container(
@@ -269,8 +301,9 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                                 .colorScheme
                                                 .onPrimary),
                                       ),
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.secondary,
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                     ),
                                   ],
                                 ),
@@ -306,7 +339,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         if (state is DocumentLoading) {
                           // Mostrar el dialogo de carga
                           GenericDialogLoading.show(
-                              context: context, message: "Creando documento...");
+                              context: context, message: "Procesando...");
                         } else if (state is DocumentSuccess) {
                           // Cerrar el dialogo y mostrar el éxito
                           GenericDialogLoading.close();
@@ -314,14 +347,25 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             conteoIniciado = true;
                             refrescarOrden();
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Conteo iniciado con éxito,')));
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text('Conteo iniciado con éxito,'),
+                            backgroundColor: Colors.green,
+                          ));
+                        } else if (state is SaveDocumentToSapSuccess) {
+                          GenericDialogLoading.close();
+                          setState(() {
+                            // refrescarOrden();
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(state.message),
+                            backgroundColor: Colors.green,
+                          ));
                         } else if (state is DocumentFailure) {
                           // Cerrar el dialogo y mostrar el error
                           GenericDialogLoading.close();
                           ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: ${state.error}')));
+                              SnackBar(content: Text('Error: ${state.error}'), backgroundColor: Colors.green,));
                         }
                       },
                       child: conteoIniciado
@@ -344,28 +388,56 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 ),
                               ),
                             )
-                          : ElevatedButton.icon(
-                              onPressed: () async {
-                                context.read<DocumentoBloc>().add(
-                                    CreateDocumentFromSAP(
-                                        docNum: widget.orden.docNum.toString(),
-                                        tipoDocumento: widget.orden.docType!));
-                              },
-                              label: const Text('INICIAR CONTEO'),
-                              icon: const Icon(
-                                Icons.play_arrow_outlined,
-                                size: 40,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                // padding: const EdgeInsets.symmetric(vertical: 16),
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                          : conteoFinalizado
+                              ? ElevatedButton.icon(
+                                  onPressed: () async {
+                                    context.read<DocumentoBloc>().add(
+                                        SaveConteoForDocNumToSap(
+                                            docNum: widget.orden.docNum
+                                                .toString()));
+                                  },
+                                  label: const Text('ENVIAR CONTEO A SAP'),
+                                  icon: const Icon(
+                                    Icons.send,
+                                    size: 30,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    foregroundColor: Colors.white,
+                                    // padding: const EdgeInsets.symmetric(vertical: 16),
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                )
+                              : ElevatedButton.icon(
+                                  onPressed: () async {
+                                    context.read<DocumentoBloc>().add(
+                                        CreateDocumentFromSAP(
+                                            docNum:
+                                                widget.orden.docNum.toString(),
+                                            tipoDocumento:
+                                                widget.orden.docType!));
+                                  },
+                                  label: const Text('INICIAR CONTEO'),
+                                  icon: const Icon(
+                                    Icons.play_arrow_outlined,
+                                    size: 40,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    // padding: const EdgeInsets.symmetric(vertical: 16),
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
                     ),
                   )
                 ],
@@ -497,7 +569,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
               } else if (state is DetalleDocumentoError) {
                 // Muestra un mensaje de error
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.error)),
+                  SnackBar(content: Text(state.error), backgroundColor: Colors.red,),
                 );
               }
             }, builder: (context, state) {
@@ -510,7 +582,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                   if (cantidad == null || cantidad <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Ingrese una cantidad válida.')),
+                          content: Text('Ingrese una cantidad válida.'), backgroundColor: Colors.red,),
                     );
                     return;
                   }
@@ -558,7 +630,8 @@ class ListaItemsDetalleOrdenVenta extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10)),
               child: ItemListDetalleOrdenVenta(
                 detalle: item,
-                detalleConteo: itemsConteo.isNotEmpty ? itemConteo : DetalleDocumento(),
+                detalleConteo:
+                    itemsConteo.isNotEmpty ? itemConteo : DetalleDocumento(),
               ));
         },
         separatorBuilder: (context, index) {

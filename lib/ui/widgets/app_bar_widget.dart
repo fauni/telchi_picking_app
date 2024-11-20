@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget{
   final String titulo;
+  final IconData? icon;
+  final VoidCallback? onPush;
   const AppBarWidget({
     super.key,
-    required this.titulo
+    required this.titulo,
+    this.icon,
+    this.onPush
   });
 
   @override
@@ -13,16 +17,11 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget{
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.surface,
       title: Text(titulo),
-      // actions: [
-      //   TextButton.icon(
-      //     onPressed: (){
-      //       setState(() {});
-      //       BlocProvider.of<PedidoBloc>(context).add(SavePedido(pedido));
-      //     }, 
-      //     icon: const Icon(Icons.save), 
-      //     label: const Text('Guardar')
-      //   )
-      // ],
+      
+      actions: [
+        icon != null 
+        ? IconButton(onPressed: onPush, icon: Icon(icon)): const SizedBox()
+      ],
     );
   }
   

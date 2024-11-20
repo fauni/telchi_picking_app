@@ -1,5 +1,6 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/widgets/button_generic_widget.dart';
 
@@ -24,7 +25,9 @@ class ItemListOrdenVenta extends StatelessWidget {
             CircleAvatar(
               backgroundColor: orden.documento == null
                 ? Colors.grey[300]
-                : Theme.of(context).colorScheme.tertiary,
+                : orden.documento!.estadoConteo == 'I' 
+                  ? Theme.of(context).colorScheme.tertiary
+                  : orden.documento!.estadoConteo == 'P' ? Colors.grey[300] : Colors.green,
               child: IconButton(
                 onPressed: onOpen, 
                 icon: const Icon(Icons.remove_red_eye_sharp)
@@ -93,15 +96,13 @@ class ItemListOrdenVenta extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10,),
-            status == 'Creado'
-            ? IconButton(
-              color: Theme.of(context).colorScheme.onError,
+            IconButton(
+              color: Theme.of(context).colorScheme.primary,
               onPressed: (){
-                // context.push('/NuevoPedido', extra: MapGeneric.pedidoListToPedido(pedido));
+                context.push('/detalleordenventa', extra: orden);
               }, 
               icon: const Icon(Icons.arrow_forward_ios)
             )
-            : const SizedBox()
           ],
         ),
     );

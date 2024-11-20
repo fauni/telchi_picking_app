@@ -5,34 +5,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:picking_app/bloc/common_bloc.dart';
 import 'package:picking_app/config/app_colors.dart';
 import 'package:picking_app/config/router/app_router.dart';
-import 'package:picking_app/repository/auth_repository.dart';
-import 'package:picking_app/repository/detalle_documento_repository.dart';
-import 'package:picking_app/repository/documento_repository.dart';
-import 'package:picking_app/repository/orden_venta_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-
-  final authRepository = AuthRepository();
-  final ordenVentaRepository = OrdenVentaRepository();
-  final documentoRepository = DocumentoRepository();
-  final detalleDocumentoRepository = DetalleDocumentoRepository();
-  final commonBloc = CommonBloc();
-  commonBloc.init(authRepository, ordenVentaRepository, documentoRepository, detalleDocumentoRepository);
-
-  runApp(MyApp(commonBloc: commonBloc));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final CommonBloc commonBloc;
 
-  const MyApp({super.key, required this.commonBloc});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: commonBloc.blocProviders,
+      providers: CommonBloc.blocProviders,
       child: MaterialApp.router(
         title: 'Picking Facil',
         debugShowCheckedModeBanner: false,

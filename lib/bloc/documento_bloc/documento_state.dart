@@ -9,6 +9,14 @@ class DocumentInitial extends DocumentoState {}
 
 class DocumentLoading extends DocumentoState {}
 
+class SaveDocumentToSapSuccess extends DocumentoState{
+  final String message;
+  SaveDocumentToSapSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class DocumentSuccess extends DocumentoState {
   final int documentId;
 

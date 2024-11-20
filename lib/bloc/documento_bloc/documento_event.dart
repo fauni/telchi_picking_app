@@ -14,3 +14,11 @@ class CreateDocumentFromSAP extends DocumentoEvent {
   @override
   List<Object?> get props => [docNum, tipoDocumento];
 }
+
+class SaveConteoForDocNumToSap extends DocumentoEvent {
+  final String docNum;
+  SaveConteoForDocNumToSap({required this.docNum});
+
+  @override
+  List<Object?> get props => [docNum];
+}
