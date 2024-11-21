@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
+import 'package:picking_app/ui/picking/detalle_orden_venta_screen.dart';
 import 'package:picking_app/ui/widgets/app_bar_widget.dart';
 import 'package:picking_app/ui/widgets/buscador_orden_venta.dart';
 import 'package:picking_app/ui/widgets/item_list_orden_venta.dart';
@@ -15,15 +16,31 @@ class BuscarOrdenVentaScreen extends StatefulWidget {
   State<BuscarOrdenVentaScreen> createState() => _BuscarOrdenVentaScreenState();
 }
 
-class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
+class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>  with SingleTickerProviderStateMixin{
   DateTime? selectedDate;
-  late OrdenVentaBloc ordenVentaBloc; // Guardar la referencia al Bloc
+  late TabController _tabController;
+  String filtroEstado = 'Todos';
+  // late OrdenVentaBloc ordenVentaBloc; // Guardar la referencia al Bloc
 
   TextEditingController controllerSearch = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        filtroEstado = _tabController.index == 0
+            ? 'Todos'
+            : _tabController.index == 1
+                ? 'Pendiente'
+                : _tabController.index == 2
+                    ? 'En Proceso'
+                    : 'Completado';
+      });
+    });
+
     cargarOrdenes();
   }
 
@@ -31,8 +48,9 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Obtener la referencia al Bloc y guardarla
-    ordenVentaBloc = BlocProvider.of<OrdenVentaBloc>(context);
+    // ordenVentaBloc = BlocProvider.of<OrdenVentaBloc>(context);
   }
+
   @override
   void dispose() {
     controllerSearch.dispose();
@@ -63,6 +81,15 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
             "${picked.toLocal()}".split(' ')[0]; // Formato de fecha
       });
     }
+  }
+
+  List<ResultadoOrdenVentaModel> filtrarPorEstado(List<ResultadoOrdenVentaModel> ordenes) {
+    if (filtroEstado == 'Todos') return ordenes;
+    return ordenes
+        .where((orden) =>
+            orden.documento?.estadoConteo == filtroEstado || 
+            (filtroEstado == 'Pendiente' && orden.documento == null))
+        .toList();
   }
 
   @override
@@ -105,43 +132,40 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
           const SizedBox(
             height: 10,
           ),
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Todos',),
+              Tab(text: 'Pendientes',),
+              Tab(text: 'En Proceso',),
+              Tab(text: 'Completados',),
+            ]
+          ),
           Expanded(
-              child: BlocConsumer<OrdenVentaBloc, OrdenVentaState>(
-            listener: (context, state) {
-              // if(state is PedidosPendientesUnauthorized){
-              //   LoginDialogWidget.mostrarDialogLogin(context);
-              // }
-              // else if(state is PedidosPendientesNotLoaded){
-              //   if(state.error.contains("UnauthorizedException")){
-              //     LoginDialogWidget.mostrarDialogLogin(context);
-              //   } else {
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //       const SnackBar(content: Text('Ocurrio un problema al obtener los Pedidos'), backgroundColor: Colors.red,)
-              //     );
-              //   }
-              // }
-            },
-            builder: (context, state) {
-              if (state is OrdenVentaCargando) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (state is OrdenVentaCargada) {
-                return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ListaDocumentosOrdenVenta(
-                        ordenes: state.response.resultado!, ordenVentaBloc: ordenVentaBloc,));
-              } else {
-                return NotFoundInformationWidget(
-                  mensaje: 'No se encontraron registros',
-                  onPush: () {
-                    cargarOrdenes();
-                  },
-                );
-              }
-            },
-            // child: ListaDocumentosOrdenVenta(ordenes: const []))
-          ))
+            child: BlocBuilder<OrdenVentaBloc, OrdenVentaState>(
+              builder: (context, state) {
+                if (state is OrdenVentaCargando) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is OrdenVentaCargada) {
+                  final ordenesFiltradas = filtrarPorEstado(state.response.resultado!);
+                  return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: ListaDocumentosOrdenVenta(
+                          ordenes: ordenesFiltradas));
+                } else {
+                  return NotFoundInformationWidget(
+                    mensaje: 'No se encontraron registros',
+                    onPush: () {
+                      cargarOrdenes();
+                    },
+                  );
+                }
+              },
+              // child: ListaDocumentosOrdenVenta(ordenes: const []))
+            ),
+          )
         ],
       ),
     );
@@ -150,12 +174,9 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen> {
 
 // ignore: must_be_immutable
 class ListaDocumentosOrdenVenta extends StatelessWidget {
-  ListaDocumentosOrdenVenta({super.key, required this.ordenes, required this.ordenVentaBloc,
-});
+  ListaDocumentosOrdenVenta({super.key, required this.ordenes});
 
   List<ResultadoOrdenVentaModel> ordenes;
-    final OrdenVentaBloc ordenVentaBloc;
-
 
   @override
   Widget build(BuildContext context) {
@@ -163,28 +184,27 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
         shrinkWrap: true,
         itemBuilder: (context, index) {
           ResultadoOrdenVentaModel orden = ordenes[index];
+          final estadoSap = orden.documento == null 
+            ? 'N' 
+            : orden.documento!.actualizadoSap; 
           return Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
               decoration: BoxDecoration(
-                  color: Colors.white, // color: Theme.of(context).colorScheme.,
+                  color: estadoSap == 'Y' ? Colors.blue[50] : Colors.white, // color: Theme.of(context).colorScheme.,
                   borderRadius: BorderRadius.circular(10)),
               child: ItemListOrdenVenta(
                 orden: orden,
                 status: 'Pendiente',
                 onOpen: () async {
-                  if (orden.documentStatus != 'bost_Close') {
-                    final result = await context.push('/detalleordenventa', extra: orden);
-                    if(result == true) {
-                      WidgetsBinding.instance.addPostFrameCallback((timeStamp){
-                        ordenVentaBloc.add(ObtenerOrdenesVenta());
-                      });
+                  final result = await context.push('/detalleordenventa', extra: orden);
+                  // if(result == true) {
+                  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp){
+                  //     ordenVentaBloc.add(ObtenerOrdenesVenta());
+                  //   });
 
-                    }
-
-                    print('Retornando');
-                    print(result);
-                  }
+                  // }
+                  print(result);
                 },
               ));
         },

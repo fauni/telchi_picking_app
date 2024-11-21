@@ -10,6 +10,7 @@ class CommonBloc {
   // Instancia del AuthBloc
   static final AuthBloc authBloc = AuthBloc(AuthRepository());
   static final OrdenVentaBloc ordenVentaBloc = OrdenVentaBloc(OrdenVentaRepository());
+  static final DetalleOrdenVentaBloc detalleOrdenVentaBloc = DetalleOrdenVentaBloc(OrdenVentaRepository());
   static final DocumentoBloc documentoBloc = DocumentoBloc(DocumentoRepository());
   static final DetalleDocumentoBloc detalleDocumentoBloc = DetalleDocumentoBloc(detalleDocumentoRepository: DetalleDocumentoRepository());
 
@@ -18,6 +19,7 @@ class CommonBloc {
   static final List<BlocProvider> blocProviders = [
     BlocProvider<AuthBloc>(create: (context) => authBloc),
     BlocProvider<OrdenVentaBloc>(create: (context) => ordenVentaBloc,),
+    BlocProvider<DetalleOrdenVentaBloc>(create: (context) => detalleOrdenVentaBloc,),
     BlocProvider<DocumentoBloc>(create: (context) => documentoBloc,),
     BlocProvider<DetalleDocumentoBloc>(create: (context) => detalleDocumentoBloc,)
   ];
@@ -26,6 +28,7 @@ class CommonBloc {
   static void dispose(){
     authBloc.close();
     ordenVentaBloc.close();
+    detalleDocumentoBloc.close();
     documentoBloc.close();
     detalleDocumentoBloc.close();
   }

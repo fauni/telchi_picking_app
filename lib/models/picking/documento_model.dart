@@ -5,6 +5,8 @@ class Documento {
     final DateTime? fechaInicio;
     final DateTime? fechaFinalizacion;
     final String? estadoConteo;
+    final int? docEntry;
+    final String? actualizadoSap;
     final List<DetalleDocumento>? detalles;
 
     Documento({
@@ -14,6 +16,8 @@ class Documento {
         this.fechaInicio,
         this.fechaFinalizacion,
         this.estadoConteo,
+        this.docEntry,
+        this.actualizadoSap,
         this.detalles,
     });
 
@@ -24,6 +28,8 @@ class Documento {
         DateTime? fechaInicio,
         DateTime? fechaFinalizacion,
         String? estadoConteo,
+        int? docEntry,
+        String? actualizadoSap,
         List<DetalleDocumento>? detalles,
     }) => 
         Documento(
@@ -33,6 +39,8 @@ class Documento {
             fechaInicio: fechaInicio ?? this.fechaInicio,
             fechaFinalizacion: fechaFinalizacion ?? this.fechaFinalizacion,
             estadoConteo: estadoConteo ?? this.estadoConteo,
+            docEntry: docEntry ?? this.docEntry,
+            actualizadoSap: actualizadoSap ?? this.actualizadoSap,
             detalles: detalles ?? this.detalles,
         );
 
@@ -43,6 +51,8 @@ class Documento {
         fechaInicio: json["fechaInicio"] == null ? null : DateTime.parse(json["fechaInicio"]),
         fechaFinalizacion: json["fechaFinalizacion"] == null ? null : DateTime.parse(json["fechaFinalizacion"]),
         estadoConteo: json["estadoConteo"],
+        docEntry: json["docEntry"],
+        actualizadoSap: json["actualizadoSap"],
         detalles: json["detalles"] == null ? [] : List<DetalleDocumento>.from(json["detalles"]!.map((x) => DetalleDocumento.fromJson(x))),
     );
 
@@ -53,6 +63,8 @@ class Documento {
         "fechaInicio": fechaInicio?.toIso8601String(),
         "fechaFinalizacion": fechaFinalizacion?.toIso8601String(),
         "estadoConteo": estadoConteo,
+        "docEntry": docEntry,
+        "actualizadoSap": actualizadoSap,
         "detalles": detalles == null ? [] : List<dynamic>.from(detalles!.map((x) => x.toJson())),
     };
 }

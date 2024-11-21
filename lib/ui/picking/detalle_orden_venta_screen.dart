@@ -62,7 +62,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
 
   void refrescarOrden() {
     context
-        .read<OrdenVentaBloc>()
+        .read<DetalleOrdenVentaBloc>()
         .add(ObtenerOrdenVentaByDocNum(widget.orden.docNum.toString()));
   }
 
@@ -92,7 +92,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
               child: const Text('Salir'),
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               },
             ),
           ],
@@ -138,7 +138,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
             // refrescarOrden();
           },
         ),
-        body: BlocConsumer<OrdenVentaBloc, OrdenVentaState>(
+        body: BlocConsumer<DetalleOrdenVentaBloc, DetalleOrdenVentaState>(
           listener: (context, state) {
             if (state is OrdenVentaPorDocNumCargada) {
               setState(() {
@@ -147,7 +147,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
             }
           },
           builder: (context, state) {
-            if (state is OrdenVentaCargando) {
+            if (state is DetalleOrdenVentaCargando) {
               // Mostrar un indicador de carga mientras se carga la orden
               return const Center(child: CircularProgressIndicator());
             } else if (state is OrdenVentaPorDocNumCargada) {
@@ -355,7 +355,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         } else if (state is SaveDocumentToSapSuccess) {
                           GenericDialogLoading.close();
                           setState(() {
-                            // refrescarOrden();
+                            context.pop(true);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text(state.message),
@@ -371,7 +371,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                       child: conteoIniciado
                           ? ElevatedButton.icon(
                               onPressed: () async {
-                                context.pop(true);
+                                context.pop(false);
                               },
                               label: const Text('GUARDAR Y SALIR'),
                               icon: const Icon(
@@ -442,7 +442,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                   )
                 ],
               );
-            } else if (state is OrdenVentaError) {
+            } else if (state is DetalleOrdenVentaError) {
               // Mostrar un mensaje de error si ocurre un problema
               return Center(child: Text('Error: ${state.mensaje}'));
             } else {

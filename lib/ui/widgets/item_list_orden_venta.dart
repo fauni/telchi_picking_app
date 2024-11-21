@@ -18,7 +18,7 @@ class ItemListOrdenVenta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(8.0),
       child: Row(
           children: [
@@ -29,7 +29,9 @@ class ItemListOrdenVenta extends StatelessWidget {
                   ? Theme.of(context).colorScheme.tertiary
                   : orden.documento!.estadoConteo == 'P' ? Colors.grey[300] : Colors.green,
               child: IconButton(
-                onPressed: onOpen, 
+                onPressed: () {
+                  
+                }, 
                 icon: const Icon(Icons.remove_red_eye_sharp)
               ),
             ),
@@ -98,9 +100,7 @@ class ItemListOrdenVenta extends StatelessWidget {
             const SizedBox(width: 10,),
             IconButton(
               color: Theme.of(context).colorScheme.primary,
-              onPressed: (){
-                context.push('/detalleordenventa', extra: orden);
-              }, 
+              onPressed: onOpen, 
               icon: const Icon(Icons.arrow_forward_ios)
             )
           ],
