@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class DetalleOrdenVentaScreen extends StatefulWidget {
 class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   TextEditingController controllerSearch = TextEditingController();
 
-  List<String> estados = ['Todos', 'Completados', 'Pendientes', 'Incompletos'];
+  List<String> estados = ['Todos', 'Pendientes', 'En Progreso', 'Completadas'];
   String estadoSeleccionado = 'Todos';
   bool conteoIniciado = false;
   bool conteoFinalizado = false;
@@ -116,6 +117,99 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
     }
   }
 
+  // List<DocumentLineOrdenVenta> filtrarItemsPorEstado() {
+  //   if (widget.orden.documento == null ||
+  //       widget.orden.documento!.detalles == null) {
+  //     return widget.orden.documentLines!;
+  //   }
+
+  //   if (estadoSeleccionado == 'Todos') {
+  //     return widget.orden.documentLines ?? [];
+  //   }
+
+  //   if (estadoSeleccionado != 'Todos') {
+  //     return obtenerDetalleOrdenPorDetalle();
+  //   }
+  //   return [];
+  // }
+
+  List<DocumentLineOrdenVenta> filtrarItemsPorEstado() {
+    if (widget.orden.documento == null || widget.orden.documentLines == null) {
+      return [];
+    }
+
+    List<DocumentLineOrdenVenta> itemsFiltrados = widget.orden.documentLines!;
+
+    // Filtrar por estado
+    if (estadoSeleccionado != 'Todos') {
+      itemsFiltrados = itemsFiltrados.where((item) {
+        final detalles = widget.orden.documento?.detalles;
+        if (detalles != null) {
+          final detalle = detalles.firstWhere(
+            (d) => d.codigoItem == item.itemCode,
+            orElse: () => DetalleDocumento(estado: 'Pendiente'),
+          );
+          return detalle.estado == estadoSeleccionado;
+        }
+        return false;
+      }).toList();
+    }
+
+    // Filtrar por texto ingresado en el buscador
+    final textoBusqueda = controllerSearch.text.toLowerCase();
+    if (textoBusqueda.isNotEmpty) {
+      itemsFiltrados = itemsFiltrados.where((item) {
+        return item.itemCode!.toLowerCase().contains(textoBusqueda) ||
+            item.itemDescription!.toLowerCase().contains(textoBusqueda);
+      }).toList();
+    }
+
+    return itemsFiltrados;
+  }
+
+  List<DocumentLineOrdenVenta> obtenerDetalleOrdenPorDetalle() {
+    List<DocumentLineOrdenVenta> detalleOrden = [];
+    List<DetalleDocumento> detalles = filtrarItemsDetallesPorEstado();
+    for (var d in detalles) {
+      final elemento = widget.orden.documentLines!.firstWhere(
+          (e) => e.itemCode == d.codigoItem,
+          orElse: () => DocumentLineOrdenVenta());
+      if (elemento.itemCode != null) {
+        detalleOrden.add(elemento);
+      }
+    }
+    return detalleOrden;
+  }
+
+  List<DetalleDocumento> filtrarItemsDetallesPorEstado() {
+    if (widget.orden.documento == null ||
+        widget.orden.documento!.detalles == null) {
+      return [];
+    }
+    // Mostrar todos los ítems si el filtro está en "Todos".
+    if (estadoSeleccionado == 'Todos') {
+      return widget.orden.documento!.detalles ?? [];
+    }
+
+    if (estadoSeleccionado == 'Pendientes') {
+      return obtenerDetalleDocumentoPorEstado('Pendiente');
+    }
+    if (estadoSeleccionado == 'En Progreso') {
+      return obtenerDetalleDocumentoPorEstado('En Progreso');
+    }
+    if (estadoSeleccionado == 'Completadas') {
+      return obtenerDetalleDocumentoPorEstado('Completado');
+    }
+    return [];
+  }
+
+  List<DetalleDocumento> obtenerDetalleDocumentoPorEstado(String estado) {
+    return widget.orden.documento!.detalles!
+        .where((detalle) => detalle.estado == estado)
+        .toList();
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -132,10 +226,9 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
             247, 247, 247, 1), //backgroundColor: Colors.blue[50],
         appBar: AppBarWidget(
           titulo: '${widget.orden.docNum}',
-          icon: Icons.playlist_add_check_sharp,
+          icon: Icons.refresh,
           onPush: () {
-            verificaSiTodosCompletados();
-            // refrescarOrden();
+            refrescarOrden();
           },
         ),
         body: BlocConsumer<DetalleOrdenVentaBloc, DetalleOrdenVentaState>(
@@ -143,6 +236,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
             if (state is OrdenVentaPorDocNumCargada) {
               setState(() {
                 widget.orden = state.orden;
+                validaEstadoConteo();
               });
             }
           },
@@ -188,90 +282,214 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             ],
                           ),
                         ),
-                        BuscadorOrdenVenta(
-                            textoHint: 'Escanear o ingresar código',
-                            iconoBoton: Icons.qr_code_scanner,
-                            controllerSearch: controllerSearch,
-                            onSubmitted: (value) {
-                              final detalleEncontrado = widget
-                                  .orden.documentLines!
-                                  .firstWhere((item) => item.itemCode == value,
-                                      orElse: () => DocumentLineOrdenVenta());
-                              final detalleConteoEncontrado =
-                                  widget.orden.documento!.detalles!.firstWhere(
-                                      (item) => item.codigoItem == value,
-                                      orElse: () => DetalleDocumento());
-
-                              if (detalleEncontrado.itemCode != null) {
-                                // Mostrar el diálogo si se encuentra el detalle
-                                _mostrarDialogoCantidad(context,
-                                    detalleEncontrado, detalleConteoEncontrado);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'El código $value no se encuentra en la lista.'), backgroundColor: Colors.red,),
-                                );
-                              }
-                            },
-                            onSearch: () async {
-                              String? res =
-                                  await SimpleBarcodeScanner.scanBarcode(
-                                context,
-                                barcodeAppBar: const BarcodeAppBar(
-                                    appBarTitle: 'Test',
-                                    centerTitle: false,
-                                    enableBackButton: true,
-                                    backButtonIcon: Icon(Icons.arrow_back_ios)),
-                                isShowFlashIcon: true,
-                                delayMillis: 2000,
-                                cameraFace: CameraFace.back,
-                              );
-
-                              // Si el resultado del escaneo no es nulo
-                              if (res != null && res.isNotEmpty) {
-                                final detalleEncontrado =
-                                    widget.orden.documentLines!.firstWhere(
-                                  (item) => item.itemCode == res,
-                                  orElse: () => DocumentLineOrdenVenta(),
-                                );
-
-                                final detalleConteoEncontrado = widget
-                                    .orden.documento?.detalles
-                                    ?.firstWhere(
-                                  (item) => item.codigoItem == res,
-                                  orElse: () => DetalleDocumento(),
-                                );
-
-                                // Verifica si el detalle fue encontrado
-                                if (detalleEncontrado.itemCode != null) {
-                                  // Abre el diálogo para agregar cantidad
-                                  _mostrarDialogoCantidad(
-                                      context,
-                                      detalleEncontrado,
-                                      detalleConteoEncontrado ??
-                                          DetalleDocumento());
-                                } else {
-                                  // Muestra un mensaje si el ítem no fue encontrado
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'El código $res no se encuentra en la lista.'), backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              } else {
-                                // Muestra un mensaje si el escaneo no produjo un resultado válido
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'No se pudo leer el código de barras. Inténtelo nuevamente.'), backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-
-                              setState(() {});
-                            }),
+                        Container(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Row(
+                            children: [
+                              FloatingActionButton.small(
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Colors.white,
+                                onPressed: () async {
+                                  final detalleEncontrado = widget
+                                      .orden.documentLines!
+                                      .firstWhere((item) => item.itemCode == controllerSearch.text,
+                                          orElse: () => DocumentLineOrdenVenta());
+                                  DetalleDocumento detalleConteoEncontrado =
+                                      DetalleDocumento();
+                                  if (widget.orden.documento != null) {
+                                    detalleConteoEncontrado = widget
+                                        .orden.documento!.detalles!
+                                        .firstWhere(
+                                            (item) => item.codigoItem == controllerSearch.text,
+                                            orElse: () => DetalleDocumento());
+                                  }
+                            
+                                  if (detalleEncontrado.itemCode != null) {
+                                    // Mostrar el diálogo si se encuentra el detalle
+                                    if (conteoIniciado != true) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Es necesario que presiones INICIAR CONTEO',
+                                            style: TextStyle(fontSize: 15),
+                                          ),
+                                          backgroundColor: Colors.blue,
+                                        ),
+                                      );
+                                    } else {
+                                      final result = await _mostrarDialogoCantidad(
+                                          context,
+                                          detalleEncontrado,
+                                          detalleConteoEncontrado);
+                                      setState(() {
+                                        
+                                        // print(result);
+                                        // estadoSeleccionado = 'En Progreso';
+                                      });
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'El código ${controllerSearch.text} no se encuentra en la lista.',
+                                          style: const TextStyle(fontSize: 15),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }, 
+                                child: const Icon(Icons.input),
+                              ),
+                              Expanded(
+                                child: BuscadorOrdenVenta(
+                                    textoHint: 'Escanear o ingresar código',
+                                    iconoBoton: Icons.qr_code_scanner,
+                                    controllerSearch: controllerSearch,
+                                    onChanged: (p0) {
+                                      setState(() {
+                                        
+                                      });
+                                    },
+                                    onSubmitted: (value) async {
+                                      final detalleEncontrado = widget
+                                          .orden.documentLines!
+                                          .firstWhere((item) => item.itemCode == value,
+                                              orElse: () => DocumentLineOrdenVenta());
+                                      DetalleDocumento detalleConteoEncontrado =
+                                          DetalleDocumento();
+                                      if (widget.orden.documento != null) {
+                                        detalleConteoEncontrado = widget
+                                            .orden.documento!.detalles!
+                                            .firstWhere(
+                                                (item) => item.codigoItem == value,
+                                                orElse: () => DetalleDocumento());
+                                      }
+                                
+                                      if (detalleEncontrado.itemCode != null) {
+                                        // Mostrar el diálogo si se encuentra el detalle
+                                        if (conteoIniciado != true) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Es necesario que presiones INICIAR CONTEO',
+                                                style: TextStyle(fontSize: 15),
+                                              ),
+                                              backgroundColor: Colors.blue,
+                                            ),
+                                          );
+                                        } else {
+                                          final result = await _mostrarDialogoCantidad(
+                                              context,
+                                              detalleEncontrado,
+                                              detalleConteoEncontrado);
+                                          setState(() {
+                                            // print(result);
+                                            // estadoSeleccionado = 'En Progreso';
+                                          });
+                                        }
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'El código $value no se encuentra en la lista.',
+                                              style: const TextStyle(fontSize: 15),
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    onSearch: () async {
+                                      if (Platform.isWindows) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Esta funcionalidad solo esta disponible en dispositivos móviles',
+                                              style: TextStyle(fontSize: 15),
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      } else {
+                                        if (conteoIniciado) {
+                                          String? res =
+                                              await SimpleBarcodeScanner.scanBarcode(
+                                            context,
+                                            barcodeAppBar: const BarcodeAppBar(
+                                                appBarTitle: 'Escanear codigo del Item',
+                                                centerTitle: false,
+                                                enableBackButton: true,
+                                                backButtonIcon:
+                                                    Icon(Icons.arrow_back_ios)),
+                                            isShowFlashIcon: true,
+                                            delayMillis: 2000,
+                                            cameraFace: CameraFace.back,
+                                          );
+                                
+                                          // Si el resultado del escaneo no es nulo
+                                          if (res != null && res.isNotEmpty) {
+                                            final detalleEncontrado =
+                                                widget.orden.documentLines!.firstWhere(
+                                              (item) => item.itemCode == res,
+                                              orElse: () => DocumentLineOrdenVenta(),
+                                            );
+                                
+                                            final detalleConteoEncontrado = widget
+                                                .orden.documento?.detalles
+                                                ?.firstWhere(
+                                              (item) => item.codigoItem == res,
+                                              orElse: () => DetalleDocumento(),
+                                            );
+                                
+                                            // Verifica si el detalle fue encontrado
+                                            if (detalleEncontrado.itemCode != null) {
+                                              // Abre el diálogo para agregar cantidad
+                                              _mostrarDialogoCantidad(
+                                                  context,
+                                                  detalleEncontrado,
+                                                  detalleConteoEncontrado ??
+                                                      DetalleDocumento());
+                                            } else {
+                                              // Muestra un mensaje si el ítem no fue encontrado
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'El código $res no se encuentra en la lista.'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          } else {
+                                            // Muestra un mensaje si el escaneo no produjo un resultado válido
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'No se pudo leer el código de barras. Inténtelo nuevamente.'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Es necesario que presiones INICIAR CONTEO',
+                                                style: TextStyle(fontSize: 15),
+                                              ),
+                                              backgroundColor: Colors.blue,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                
+                                      setState(() {});
+                                    }),
+                              ),
+                            ],
+                          ),
+                        ),
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
@@ -323,10 +541,57 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: ListaItemsDetalleOrdenVenta(
-                            items: widget.orden.documentLines!,
-                            itemsConteo: widget.orden.documento == null
-                                ? []
-                                : widget.orden.documento!.detalles!,
+                            items: filtrarItemsPorEstado(),
+                            itemsConteo: filtrarItemsDetallesPorEstado(),
+                            onItemTap: (p0) async {
+                              final detalleEncontrado = widget
+                                  .orden.documentLines!
+                                  .firstWhere((item) => item.itemCode == p0,
+                                      orElse: () => DocumentLineOrdenVenta());
+                              DetalleDocumento detalleConteoEncontrado =
+                                  DetalleDocumento();
+                              if (widget.orden.documento != null) {
+                                detalleConteoEncontrado = widget
+                                    .orden.documento!.detalles!
+                                    .firstWhere(
+                                        (item) => item.codigoItem == p0,
+                                        orElse: () => DetalleDocumento());
+                              }
+                        
+                              if (detalleEncontrado.itemCode != null) {
+                                // Mostrar el diálogo si se encuentra el detalle
+                                if (conteoIniciado != true) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Es necesario que presiones INICIAR CONTEO',
+                                        style: TextStyle(fontSize: 15),
+                                      ),
+                                      backgroundColor: Colors.blue,
+                                    ),
+                                  );
+                                } else {
+                                  final result = await _mostrarDialogoCantidad(
+                                      context,
+                                      detalleEncontrado,
+                                      detalleConteoEncontrado);
+                                  setState(() {
+                                    // print(result);
+                                    // estadoSeleccionado = 'En Progreso';
+                                  });
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'El código $p0 no se encuentra en la lista.',
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         ))
                       ],
@@ -364,14 +629,16 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         } else if (state is DocumentFailure) {
                           // Cerrar el dialogo y mostrar el error
                           GenericDialogLoading.close();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: ${state.error}'), backgroundColor: Colors.green,));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Error: ${state.error}'),
+                            backgroundColor: Colors.green,
+                          ));
                         }
                       },
                       child: conteoIniciado
                           ? ElevatedButton.icon(
                               onPressed: () async {
-                                context.pop(false);
+                                context.pop(true);
                               },
                               label: const Text('GUARDAR Y SALIR'),
                               icon: const Icon(
@@ -461,31 +728,31 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-              // color: Colors.red
-              ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'FILTRAR',
+                'FILTRAR POR ESTADO',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
               const Divider(),
               Expanded(
-                child: Wrap(
-                  children: estados.map((estado) {
-                    return ListTile(
-                      title: Text(estado),
-                      onTap: () {
-                        setState(() {
-                          estadoSeleccionado = estado;
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  }).toList(),
-                ),
+                child: ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return const Divider();
+                    },
+                    itemCount: estados.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(estados[index]),
+                        onTap: () {
+                          setState(() {
+                            estadoSeleccionado = estados[index];
+                          });
+                          Navigator.pop(context);
+                        },
+                      );
+                    }),
               ),
             ],
           ),
@@ -494,19 +761,26 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
     );
   }
 
-  void _mostrarDialogoCantidad(BuildContext context,
-      DocumentLineOrdenVenta detalle, DetalleDocumento detalleConteo) {
+  Future<void> _mostrarDialogoCantidad(BuildContext context,
+      DocumentLineOrdenVenta detalle, DetalleDocumento detalleConteo) async {
     final TextEditingController cantidadController = TextEditingController();
     cantidadController.text = '1';
-    showDialog(
+    await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(detalle.itemCode.toString()),
+          title: Column(
+            children: [
+              Text(detalle.itemCode.toString()),
+              const Divider()
+            ],
+          ),
+
           content: SizedBox(
             height: 200,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Text(detalle.itemCode.toString()),
                 Text(
@@ -533,67 +807,127 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                     Text((detalleConteo.cantidadContada!.toInt()).toString()),
                   ],
                 ),
-                TextField(
-                  controller: cantidadController,
-                  keyboardType: TextInputType.number, // solo números
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d+(\.\d{0,2})?$')),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: cantidadController,
+                        keyboardType: TextInputType.number, // solo números
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+(\.\d{0,2})?$')),
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: 'Ingresar cantidad:',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10,),
+                    FloatingActionButton.small(
+                      backgroundColor: Colors.green,
+                      onPressed: () {
+                        final valor = cantidadController.text;
+                        cantidadController.text = (int.parse(valor) + 1).toString();
+                      },
+                      child: const Icon(Icons.add),
+                    ),
+                    const SizedBox(width: 10,),
+                    FloatingActionButton.small(
+                      backgroundColor: Colors.red,
+                      onPressed: () {
+                        print(detalleConteo.cantidadContada);
+                        final valor = cantidadController.text;
+                        if(int.parse(valor) > 0){
+                          cantidadController.text = (int.parse(valor) - 1).toString();
+                        }
+                      },
+                      child: const Icon(Icons.remove),
+                    ),
                   ],
-                  decoration: const InputDecoration(
-                    labelText: 'Ingresar cantidad:',
-                    border: OutlineInputBorder(),
-                  ),
                 ),
+                detalle.quantity! > detalleConteo.cantidadContada!
+                  ? const SizedBox()
+                  : const Text('El conteo de este item ya fue completado.', style: TextStyle(color: Colors.green),)
               ],
             ),
           ),
           actions: [
-            TextButton(
+            TextButton.icon(
               onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
+                Navigator.of(context).pop(false); // Cerrar el diálogo
               },
-              child: const Text('Cancelar'),
+              icon: const Icon(Icons.close),
+              label: const Text('Volver'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+                foregroundColor: Colors.white,
+                // padding: const EdgeInsets.symmetric(vertical: 16),
+                // minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
             BlocConsumer<DetalleDocumentoBloc, DetalleDocumentoState>(
                 listener: (context, state) {
               if (state is DetalleDocumentoLoading) {
                 // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
               } else if (state is DetalleDocumentoSuccess) {
-                // Muestra un mejsaje de exito y cierra el dialog
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(content: Text(state.mensaje)),
-                // );
                 Navigator.of(context).pop(); // Cerrar el diálogo
                 refrescarOrden();
               } else if (state is DetalleDocumentoError) {
                 // Muestra un mensaje de error
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.error), backgroundColor: Colors.red,),
+                  SnackBar(
+                    content: Text(state.error),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             }, builder: (context, state) {
               if (state is DetalleDocumentoLoading) {
                 return const CircularProgressIndicator();
               }
-              return ElevatedButton(
+              return detalle.quantity! == detalleConteo.cantidadContada!
+            ? const SizedBox():  ElevatedButton.icon(
+                icon: const Icon(Icons.check),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  // padding: const EdgeInsets.symmetric(vertical: 16),
+                  // minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
                 onPressed: () {
                   final cantidad = double.tryParse(cantidadController.text);
                   if (cantidad == null || cantidad <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Ingrese una cantidad válida.'), backgroundColor: Colors.red,),
+                        content: Text('Ingrese una cantidad válida.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  } else if (cantidad + detalleConteo.cantidadContada! > detalle.quantity!){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('La cantidad ingresada mas la cantidad contada exceden a la cantidad esperada, no es permitida esta operación.'),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 5),
+                      ),
                     );
                     return;
                   }
-
                   // Aquí puedes realizar la lógica para agregar la cantidad
-                  context.read<DetalleDocumentoBloc>().add(
-                      ActualizarCantidadPorDetalle(
-                          idDetalle: detalleConteo.idDetalle!,
-                          cantidadAgregada: cantidad));
+                  context.read<DetalleDocumentoBloc>().add(ActualizarCantidadPorDetalle(
+                    idDetalle: detalleConteo.idDetalle!,
+                    cantidadAgregada: cantidad),
+                  );
                 },
-                child: const Text('Confirmar'),
+                label: const Text('Confirmar'),
               );
             }),
           ],
@@ -603,23 +937,37 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 }
 
+
 // ignore: must_be_immutable
-class ListaItemsDetalleOrdenVenta extends StatelessWidget {
+class ListaItemsDetalleOrdenVenta extends StatefulWidget {
   ListaItemsDetalleOrdenVenta(
-      {super.key, required this.items, required this.itemsConteo});
+    {
+      super.key, 
+      required this.items, 
+      required this.itemsConteo,
+      required this.onItemTap,
+    }
+  );
 
   List<DocumentLineOrdenVenta> items;
   List<DetalleDocumento> itemsConteo;
+  final Function(String) onItemTap;
 
+
+  @override
+  State<ListaItemsDetalleOrdenVenta> createState() => _ListaItemsDetalleOrdenVentaState();
+}
+
+class _ListaItemsDetalleOrdenVentaState extends State<ListaItemsDetalleOrdenVenta> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          DocumentLineOrdenVenta item = items[index];
+          DocumentLineOrdenVenta item = widget.items[index];
           DetalleDocumento itemConteo = DetalleDocumento();
-          if (itemsConteo.isNotEmpty) {
-            itemConteo = itemsConteo[index];
+          if (widget.itemsConteo.isNotEmpty) {
+            itemConteo = widget.itemsConteo[index];
           }
           return Container(
               padding:
@@ -631,7 +979,8 @@ class ListaItemsDetalleOrdenVenta extends StatelessWidget {
               child: ItemListDetalleOrdenVenta(
                 detalle: item,
                 detalleConteo:
-                    itemsConteo.isNotEmpty ? itemConteo : DetalleDocumento(),
+                    widget.itemsConteo.isNotEmpty ? itemConteo : DetalleDocumento(),
+                onTap: () => widget.onItemTap(item.itemCode!),
               ));
         },
         separatorBuilder: (context, index) {
@@ -639,6 +988,6 @@ class ListaItemsDetalleOrdenVenta extends StatelessWidget {
             height: 5,
           );
         },
-        itemCount: items.length);
+        itemCount: widget.items.length);
   }
 }

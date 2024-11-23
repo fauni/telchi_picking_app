@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class NotFoundInformationWidget extends StatelessWidget {
   const NotFoundInformationWidget({
     super.key,
+    required this.icono,
     required this.mensaje,
     required this.onPush
   });
 
   final String mensaje;
+  final IconData icono;
   final Function() onPush;
   @override
   Widget build(BuildContext context) {
@@ -15,9 +17,10 @@ class NotFoundInformationWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 30,
-            child: Icon(Icons.error_outline, size: 40,),
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            child: Icon(icono, size: 40,),
           ),
           Text(mensaje, style: Theme.of(context).textTheme.bodyMedium, maxLines: 2),
           const SizedBox(
