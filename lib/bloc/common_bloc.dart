@@ -4,13 +4,14 @@ import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/repository/auth_repository.dart';
 import 'package:picking_app/repository/detalle_documento_repository.dart';
 import 'package:picking_app/repository/documento_repository.dart';
+import 'package:picking_app/repository/factura_repository.dart';
 import 'package:picking_app/repository/orden_venta_repository.dart';
 
 class CommonBloc {
   // Instancia del AuthBloc
   static final AuthBloc authBloc = AuthBloc(AuthRepository());
-  static final OrdenVentaBloc ordenVentaBloc = OrdenVentaBloc(OrdenVentaRepository());
-  static final DetalleOrdenVentaBloc detalleOrdenVentaBloc = DetalleOrdenVentaBloc(OrdenVentaRepository());
+  static final OrdenVentaBloc ordenVentaBloc = OrdenVentaBloc(OrdenVentaRepository(), FacturaRepository());
+  static final DetalleOrdenVentaBloc detalleOrdenVentaBloc = DetalleOrdenVentaBloc(OrdenVentaRepository(), FacturaRepository());
   static final DocumentoBloc documentoBloc = DocumentoBloc(DocumentoRepository());
   static final DetalleDocumentoBloc detalleDocumentoBloc = DetalleDocumentoBloc(detalleDocumentoRepository: DetalleDocumentoRepository());
 

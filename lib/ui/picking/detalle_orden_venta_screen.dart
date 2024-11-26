@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:date_format/date_format.dart';
@@ -17,8 +16,9 @@ import 'package:picking_app/ui/widgets/item_list_detalle_orden_venta.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class DetalleOrdenVentaScreen extends StatefulWidget {
-  DetalleOrdenVentaScreen({super.key, required this.orden});
+  DetalleOrdenVentaScreen({super.key, required this.orden, required this.tipoDocumento});
   ResultadoOrdenVentaModel orden;
+  String tipoDocumento;
 
   @override
   State<DetalleOrdenVentaScreen> createState() =>
@@ -64,7 +64,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   void refrescarOrden() {
     context
         .read<DetalleOrdenVentaBloc>()
-        .add(ObtenerOrdenVentaByDocNum(widget.orden.docNum.toString()));
+        .add(ObtenerOrdenVentaByDocNum(widget.orden.docNum.toString(), ''));
   }
 
   void _showBackDialog() {
@@ -134,7 +134,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   // }
 
   List<DocumentLineOrdenVenta> filtrarItemsPorEstado() {
-    if (widget.orden.documento == null || widget.orden.documentLines == null) {
+    if (widget.orden.documentLines == null) {
       return [];
     }
 
@@ -431,7 +431,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                           if (res != null && res.isNotEmpty) {
                                             final detalleEncontrado =
                                                 widget.orden.documentLines!.firstWhere(
-                                              (item) => item.itemCode == res,
+                                              (item) => item.barCode == res,
                                               orElse: () => DocumentLineOrdenVenta(),
                                             );
                                 

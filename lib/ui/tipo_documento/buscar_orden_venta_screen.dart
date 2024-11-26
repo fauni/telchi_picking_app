@@ -9,8 +9,9 @@ import 'package:picking_app/ui/widgets/item_list_orden_venta.dart';
 import 'package:picking_app/ui/widgets/not_found_information_widget.dart';
 
 class BuscarOrdenVentaScreen extends StatefulWidget {
-  const BuscarOrdenVentaScreen({super.key});
+  const BuscarOrdenVentaScreen({super.key, required this.tipoDocumento});
 
+  final String tipoDocumento;
   @override
   State<BuscarOrdenVentaScreen> createState() => _BuscarOrdenVentaScreenState();
 }
@@ -58,12 +59,12 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
   }
 
   void cargarOrdenes() {
-    BlocProvider.of<OrdenVentaBloc>(context).add(ObtenerOrdenesVenta());
+    BlocProvider.of<OrdenVentaBloc>(context).add(ObtenerOrdenesVenta(widget.tipoDocumento));
   }
 
   void cargarOrdenesBySearch() {
     BlocProvider.of<OrdenVentaBloc>(context)
-        .add(ObtenerOrdenesVentaBySearch(controllerSearch.text));
+        .add(ObtenerOrdenesVentaBySearch(controllerSearch.text, widget.tipoDocumento));
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -99,7 +100,11 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
       backgroundColor: const Color.fromRGBO(
           247, 247, 247, 1), // const Color.fromARGB(255, 204, 216, 226),
       appBar: AppBarWidget(
-        titulo: 'Orden de Venta',
+        titulo: widget.tipoDocumento == 'orden_venta' 
+          ? 'Orden de Venta'
+          : widget.tipoDocumento == 'factura' 
+            ? 'Factura de Venta'
+            : 'No se reconoce',
         icon: Icons.refresh,
         onPush: () => cargarOrdenesBySearch(),
       ),
@@ -163,9 +168,12 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
                     final ordenesFiltradas =
                         filtrarPorEstado(state.response.resultado!);
                     return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: ListaDocumentosOrdenVenta(
-                            ordenes: ordenesFiltradas));
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: ListaDocumentosOrdenVenta(
+                        ordenes: ordenesFiltradas,
+                        tipoDocumento: widget.tipoDocumento,
+                      ),
+                    );
                   } else {
                     return NotFoundInformationWidget(
                       mensaje: 'No se pudo obtener registros desde los datos ingresados',
@@ -196,9 +204,10 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
 
 // ignore: must_be_immutable
 class ListaDocumentosOrdenVenta extends StatelessWidget {
-  ListaDocumentosOrdenVenta({super.key, required this.ordenes});
+  ListaDocumentosOrdenVenta({super.key, required this.ordenes, required this.tipoDocumento });
 
   List<ResultadoOrdenVentaModel> ordenes;
+  String tipoDocumento;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +230,7 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
                 status: 'Pendiente',
                 onOpen: () async {
                   final result =
-                      await context.push('/detalleordenventa', extra: orden);
+                      await context.push('/detalleordenventa/$tipoDocumento', extra: orden);
                   // if(result == true) {
                   //   WidgetsBinding.instance.addPostFrameCallback((timeStamp){
                   //     ordenVentaBloc.add(ObtenerOrdenesVenta());
@@ -230,7 +239,7 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
                   // }
                   if (result == true) {
                     BlocProvider.of<OrdenVentaBloc>(context)
-                        .add(ObtenerOrdenesVenta());
+                        .add(ObtenerOrdenesVenta(tipoDocumento));
                     // tabController.index = 4;
                   }
                 },

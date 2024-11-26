@@ -36,7 +36,7 @@ class TipoDocumentoScreen extends StatelessWidget {
                     label: "ORDEN DE VENTA",
                     color: Theme.of(context).colorScheme.primary,
                     onPressed: () {
-                      context.push('/ordenventa');
+                      context.push('/ordenventa', extra: 'orden_venta');
                     },
                   ),
                   // Botón ORDEN DE VENTA
@@ -44,7 +44,9 @@ class TipoDocumentoScreen extends StatelessWidget {
                     icon: Icons.receipt,
                     label: "FACTURA DE VENTAS",
                     color: Theme.of(context).colorScheme.primary,
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/ordenventa', extra: 'factura');
+                    },
                   ),
                   // Botón ORDEN DE VENTA
                   ButtonTipoDocumento(

@@ -11,9 +11,10 @@ abstract class DetalleOrdenVentaEvent extends Equatable{
 // Nuevo evento para obtener una orden por DocNum
 class ObtenerOrdenVentaByDocNum extends DetalleOrdenVentaEvent {
   final String docNum;
+  final String tipoDocumento;
 
-  const ObtenerOrdenVentaByDocNum(this.docNum);
+  const ObtenerOrdenVentaByDocNum(this.docNum, this.tipoDocumento);
 
   @override
-  List<Object> get props => [docNum];
+  List<Object> get props => [docNum, tipoDocumento];
 }

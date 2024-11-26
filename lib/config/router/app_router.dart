@@ -23,13 +23,17 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/ordenventa',
-      builder: (context, state) => const BuscarOrdenVentaScreen(),
+      builder: (context, state) {
+        String tipoDocumento = state.extra as String;
+        return BuscarOrdenVentaScreen(tipoDocumento: tipoDocumento,);
+      } 
     ),
     GoRoute(
-      path: '/detalleordenventa',
+      path: '/detalleordenventa/:tipoDocumento',
       builder: (context, state) {
         ResultadoOrdenVentaModel data = state.extra as ResultadoOrdenVentaModel;
-        return DetalleOrdenVentaScreen(orden: data);
+        final tipoDocumento = state.pathParameters['tipoDocumento'] ?? '';
+        return DetalleOrdenVentaScreen(orden: data, tipoDocumento: tipoDocumento,);
       },
     )
   ]
