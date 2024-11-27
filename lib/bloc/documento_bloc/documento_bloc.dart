@@ -34,7 +34,7 @@ class DocumentoBloc extends Bloc<DocumentoEvent, DocumentoState> {
   Future<void> _onGuardaConteoEnSapPorDocNum(SaveConteoForDocNumToSap event, Emitter<DocumentoState> emit) async {
     emit(DocumentLoading());
     try {
-      final response = await repository.actualizarConteoDocumentoSap(event.docNum);
+      final response = await repository.actualizarConteoDocumentoSap(event.docNum, event.tipoDocumento);
       if(response.isSuccessful){
         emit(SaveDocumentToSapSuccess(response.resultado!.message));
       } else {

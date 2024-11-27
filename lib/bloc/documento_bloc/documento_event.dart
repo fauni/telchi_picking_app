@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-abstract class DocumentoEvent extends Equatable{
-   @override
+abstract class DocumentoEvent extends Equatable {
+  @override
   List<Object?> get props => [];
 }
 
@@ -17,8 +17,9 @@ class CreateDocumentFromSAP extends DocumentoEvent {
 
 class SaveConteoForDocNumToSap extends DocumentoEvent {
   final String docNum;
-  SaveConteoForDocNumToSap({required this.docNum});
+  final String tipoDocumento;
+  SaveConteoForDocNumToSap({required this.docNum, required this.tipoDocumento});
 
   @override
-  List<Object?> get props => [docNum];
+  List<Object?> get props => [docNum, tipoDocumento];
 }

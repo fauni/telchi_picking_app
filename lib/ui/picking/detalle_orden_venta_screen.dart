@@ -440,7 +440,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             final detalleConteoEncontrado = widget
                                                 .orden.documento?.detalles
                                                 ?.firstWhere(
-                                              (item) => item.codigoItem == res,
+                                              (item) => item.codigoBarras == res,
                                               orElse: () => DetalleDocumento(),
                                             );
                                 
@@ -548,7 +548,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             onItemTap: (p0) async {
                               final detalleEncontrado = widget
                                   .orden.documentLines!
-                                  .firstWhere((item) => item.barCode == p0,
+                                  .firstWhere((item) => item.itemCode == p0,
                                       orElse: () => DocumentLineOrdenVenta());
                               DetalleDocumento detalleConteoEncontrado =
                                   DetalleDocumento();
@@ -556,7 +556,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 detalleConteoEncontrado = widget
                                     .orden.documento!.detalles!
                                     .firstWhere(
-                                        (item) => item.codigoBarras == p0,
+                                        (item) => item.codigoItem == p0,
                                         orElse: () => DetalleDocumento());
                               }
                         
@@ -633,7 +633,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           GenericDialogLoading.close();
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text('Error: ${state.error}'),
-                            backgroundColor: Colors.green,
+                            backgroundColor: Colors.red,
                           ));
                         }
                       },
@@ -661,9 +661,11 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                               ? ElevatedButton.icon(
                                   onPressed: () async {
                                     context.read<DocumentoBloc>().add(
-                                        SaveConteoForDocNumToSap(
-                                            docNum: widget.orden.docNum
-                                                .toString()));
+                                      SaveConteoForDocNumToSap(
+                                        docNum: widget.orden.docNum.toString(),
+                                        tipoDocumento: widget.tipoDocumento
+                                      ),
+                                    );
                                   },
                                   label: const Text('ENVIAR CONTEO A SAP'),
                                   icon: const Icon(

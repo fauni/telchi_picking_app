@@ -59,8 +59,8 @@ class DocumentoRepository {
     }
   }
 
-  Future<ApiResponse<ResultadoGenericoMensaje>> actualizarConteoDocumentoSap(String docNum) async {
-    final url = Uri.parse('$_baseUrl/document/ActualizarConteoDocumento?docNum=$docNum');
+  Future<ApiResponse<ResultadoGenericoMensaje>> actualizarConteoDocumentoSap(String docNum, String tipoDocumento) async {
+    final url = Uri.parse('$_baseUrl/document/ActualizarConteoDocumento?docNum=$docNum&tipoDocumento=$tipoDocumento');
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
     final tokenSAP = await _authRepository.getTokenSap();
