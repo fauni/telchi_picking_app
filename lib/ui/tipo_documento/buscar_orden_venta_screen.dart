@@ -238,6 +238,7 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
 
                   // }
                   if (result == true) {
+                    // ignore: use_build_context_synchronously
                     BlocProvider.of<OrdenVentaBloc>(context)
                         .add(ObtenerOrdenesVenta(tipoDocumento));
                     // tabController.index = 4;

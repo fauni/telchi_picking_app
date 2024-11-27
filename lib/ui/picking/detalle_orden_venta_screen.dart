@@ -15,6 +15,7 @@ import 'package:picking_app/ui/widgets/item_detalle_widget.dart';
 import 'package:picking_app/ui/widgets/item_list_detalle_orden_venta.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
+// ignore: must_be_immutable
 class DetalleOrdenVentaScreen extends StatefulWidget {
   DetalleOrdenVentaScreen({super.key, required this.orden, required this.tipoDocumento});
   ResultadoOrdenVentaModel orden;
@@ -103,6 +104,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   void verificaSiTodosCompletados() {
+    // ignore: unused_local_variable
     bool esCompletado = true;
     int totalCompletados = 0;
     widget.orden.documento?.detalles?.forEach((item) {
@@ -116,22 +118,6 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
       esCompletado = false;
     }
   }
-
-  // List<DocumentLineOrdenVenta> filtrarItemsPorEstado() {
-  //   if (widget.orden.documento == null ||
-  //       widget.orden.documento!.detalles == null) {
-  //     return widget.orden.documentLines!;
-  //   }
-
-  //   if (estadoSeleccionado == 'Todos') {
-  //     return widget.orden.documentLines ?? [];
-  //   }
-
-  //   if (estadoSeleccionado != 'Todos') {
-  //     return obtenerDetalleOrdenPorDetalle();
-  //   }
-  //   return [];
-  // }
 
   List<DocumentLineOrdenVenta> filtrarItemsPorEstado() {
     if (widget.orden.documentLines == null) {
@@ -319,6 +305,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                         ),
                                       );
                                     } else {
+                                      // ignore: unused_local_variable
                                       final result = await _mostrarDialogoCantidad(
                                           context,
                                           detalleEncontrado,
@@ -381,6 +368,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             ),
                                           );
                                         } else {
+                                          // ignore: unused_local_variable
                                           final result = await _mostrarDialogoCantidad(
                                               context,
                                               detalleEncontrado,
@@ -428,7 +416,6 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             delayMillis: 2000,
                                             cameraFace: CameraFace.back,
                                           );
-                                          print('El codigo escaneado es: $res');
                                           // Si el resultado del escaneo no es nulo
                                           if (res != null && res.isNotEmpty) {
                                             final detalleEncontrado =
@@ -448,12 +435,14 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             if (detalleEncontrado.itemCode != null) {
                                               // Abre el diálogo para agregar cantidad
                                               _mostrarDialogoCantidad(
+                                                  // ignore: use_build_context_synchronously
                                                   context,
                                                   detalleEncontrado,
                                                   detalleConteoEncontrado ??
                                                       DetalleDocumento());
                                             } else {
                                               // Muestra un mensaje si el ítem no fue encontrado
+                                              // ignore: use_build_context_synchronously
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
@@ -465,6 +454,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             }
                                           } else {
                                             // Muestra un mensaje si el escaneo no produjo un resultado válido
+                                            // ignore: use_build_context_synchronously
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               const SnackBar(
                                                 content: Text(
@@ -573,6 +563,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                     ),
                                   );
                                 } else {
+                                  // ignore: unused_local_variable
                                   final result = await _mostrarDialogoCantidad(
                                       context,
                                       detalleEncontrado,

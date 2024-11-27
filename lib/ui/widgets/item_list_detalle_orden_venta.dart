@@ -23,7 +23,6 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
   @override
   void initState() {
     super.initState();
-    print(widget.detalle.barCode);
   }
 
   @override

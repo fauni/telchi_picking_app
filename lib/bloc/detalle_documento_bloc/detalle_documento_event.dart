@@ -13,7 +13,7 @@ class ActualizarCantidadPorDetalle extends DetalleDocumentoEvent {
   final int idDetalle;
   final double cantidadAgregada;
 
-  ActualizarCantidadPorDetalle({required this.idDetalle, required this.cantidadAgregada });
+  const ActualizarCantidadPorDetalle({required this.idDetalle, required this.cantidadAgregada });
 
   @override
   List<Object?> get props => [idDetalle, cantidadAgregada];

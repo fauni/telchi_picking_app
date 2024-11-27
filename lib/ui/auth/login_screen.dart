@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: Image.asset(
                         'assets/logos/logo_piking_facil.png',

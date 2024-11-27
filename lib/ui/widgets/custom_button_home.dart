@@ -6,11 +6,11 @@ class CustomButtonHome extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomButtonHome({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
