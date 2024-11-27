@@ -78,7 +78,9 @@ class DetalleDocumento {
     final double? cantidadEsperada;
     final double? cantidadContada;
     final String? estado;
+    final String? codigoBarras;
     final List<dynamic>? conteos;
+    
 
     DetalleDocumento({
         this.idDetalle,
@@ -89,6 +91,7 @@ class DetalleDocumento {
         this.cantidadEsperada,
         this.cantidadContada,
         this.estado,
+        this.codigoBarras,
         this.conteos,
     });
 
@@ -101,6 +104,7 @@ class DetalleDocumento {
         double? cantidadEsperada,
         double? cantidadContada,
         String? estado,
+        String? codigoBarras,
         List<dynamic>? conteos,
     }) => 
         DetalleDocumento(
@@ -112,6 +116,7 @@ class DetalleDocumento {
             cantidadEsperada: cantidadEsperada ?? this.cantidadEsperada,
             cantidadContada: cantidadContada ?? this.cantidadContada,
             estado: estado ?? this.estado,
+            codigoBarras: codigoBarras ?? this.codigoBarras,
             conteos: conteos ?? this.conteos,
         );
 
@@ -124,6 +129,7 @@ class DetalleDocumento {
         cantidadEsperada: json["cantidadEsperada"],
         cantidadContada: json["cantidadContada"],
         estado: json["estado"],
+        codigoBarras: json["codigoBarras"],
         conteos: json["conteos"] == null ? [] : List<dynamic>.from(json["conteos"]!.map((x) => x)),
     );
 
@@ -136,6 +142,7 @@ class DetalleDocumento {
         "cantidadEsperada": cantidadEsperada,
         "cantidadContada": cantidadContada,
         "estado": estado,
+        "codigoBarras": codigoBarras,
         "conteos": conteos == null ? [] : List<dynamic>.from(conteos!.map((x) => x)),
     };
 }

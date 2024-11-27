@@ -1,9 +1,9 @@
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/widgets/button_generic_widget.dart';
 
+// ignore: must_be_immutable
 class ItemListOrdenVenta extends StatelessWidget {
   ItemListOrdenVenta({
     super.key,
@@ -19,10 +19,11 @@ class ItemListOrdenVenta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
       child: Row(
           children: [
             CircleAvatar(
+              radius: 18,
               backgroundColor: orden.documento == null
                 ? Colors.grey[300]
                 : orden.documento!.estadoConteo == 'I' 
@@ -32,7 +33,7 @@ class ItemListOrdenVenta extends StatelessWidget {
                 onPressed: () {
                   
                 }, 
-                icon: const Icon(Icons.remove_red_eye_sharp)
+                icon: const Icon(Icons.remove_red_eye_sharp, size: 20,)
               ),
             ),
             const SizedBox(width: 10.0,),
@@ -40,13 +41,6 @@ class ItemListOrdenVenta extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Text('Codigo SAP: ', style: Theme.of(context).textTheme.titleSmall,),
-                  //     Text('${orden.docEntry}'),
-                  //   ],
-                  // ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

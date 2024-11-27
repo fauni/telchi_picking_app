@@ -14,7 +14,7 @@ class OrdenVentaRepository {
   
 
   Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerOrdenesDeVenta() async {
-    final url = Uri.parse('$_baseUrl/order');
+    final url = Uri.parse('$_baseUrl/order?tipoDocumento=orden_venta');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -61,7 +61,7 @@ class OrdenVentaRepository {
   }
 
   Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerOrdenesDeVentaBySearch(String search) async {
-    final url = Uri.parse('$_baseUrl/order?top=5&skip=0&search=$search');
+    final url = Uri.parse('$_baseUrl/order?top=5&skip=0&search=$search&tipoDocumento=orden_venta');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -108,8 +108,8 @@ class OrdenVentaRepository {
   }
 
   // Nuevo método para obtener una orden de venta específica por docNum
-  Future<ApiResponse<ResultadoOrdenVentaModel>> obtenerOrdenVentaPorDocNum(String docNum) async {
-    final url = Uri.parse('$_baseUrl/order/GetOrdenByDocNum/$docNum');
+  Future<ApiResponse<ResultadoOrdenVentaModel>> obtenerOrdenVentaPorDocNum(String docNum, String tipoDocumento) async {
+    final url = Uri.parse('$_baseUrl/order/GetOrdenByDocNum/$docNum/$tipoDocumento');
 
     final token = await _authRepository.getToken();
     final tokenSAP = await _authRepository.getTokenSap();

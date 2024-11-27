@@ -14,7 +14,7 @@ class FacturaRepository {
   
 
   Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerFactura() async {
-    final url = Uri.parse('$_baseUrl/invoice');
+    final url = Uri.parse('$_baseUrl/invoice?tipoDocumento=factura');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -61,7 +61,7 @@ class FacturaRepository {
   }
 
   Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerFacturaBySearch(String search) async {
-    final url = Uri.parse('$_baseUrl/invoice?top=5&skip=0&search=$search');
+    final url = Uri.parse('$_baseUrl/invoice?top=5&skip=0&search=$search&tipoDocumento=factura');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -108,8 +108,8 @@ class FacturaRepository {
   }
 
   // Nuevo método para obtener una orden de venta específica por docNum
-  Future<ApiResponse<ResultadoOrdenVentaModel>> obtenerFacturaPorDocNum(String docNum) async {
-    final url = Uri.parse('$_baseUrl/invoice/GetInvoiceByDocNum/$docNum');
+  Future<ApiResponse<ResultadoOrdenVentaModel>> obtenerFacturaPorDocNum(String docNum, String tipoDocumento) async {
+    final url = Uri.parse('$_baseUrl/invoice/GetInvoiceByDocNum/$docNum/$tipoDocumento');
 
     final token = await _authRepository.getToken();
     final tokenSAP = await _authRepository.getTokenSap();

@@ -20,8 +20,8 @@ class DetalleOrdenVentaBloc extends Bloc<DetalleOrdenVentaEvent, DetalleOrdenVen
 
     try {
       final response = event.tipoDocumento == 'orden_venta' 
-        ? await repository.obtenerOrdenVentaPorDocNum(event.docNum)
-        : await facturaRepository.obtenerFacturaPorDocNum(event.docNum);
+        ? await repository.obtenerOrdenVentaPorDocNum(event.docNum, event.tipoDocumento)
+        : await facturaRepository.obtenerFacturaPorDocNum(event.docNum, event.tipoDocumento);
 
       if (response.isSuccessful && response.resultado != null) {
         emit(OrdenVentaPorDocNumCargada(response.resultado!)); // Emitir estado con la orden cargada

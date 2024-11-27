@@ -64,7 +64,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   void refrescarOrden() {
     context
         .read<DetalleOrdenVentaBloc>()
-        .add(ObtenerOrdenVentaByDocNum(widget.orden.docNum.toString(), ''));
+        .add(ObtenerOrdenVentaByDocNum(widget.orden.docNum.toString(), widget.tipoDocumento));
   }
 
   void _showBackDialog() {
@@ -262,9 +262,11 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const ItemDetalleWidget(
+                              ItemDetalleWidget(
                                 titulo: 'Tipo de Documento',
-                                valor: 'Orden de Venta',
+                                valor:  widget.tipoDocumento == 'orden_venta' ? 'Orden de Venta'
+                                  : widget.tipoDocumento == 'factura' ? 'Factura de Venta'
+                                  : 'Otro', // TODO: Completar validación para otros tipos de documentos
                               ),
                               ItemDetalleWidget(
                                 titulo: 'Número de Documento',
@@ -426,7 +428,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             delayMillis: 2000,
                                             cameraFace: CameraFace.back,
                                           );
-                                
+                                          print('El codigo escaneado es: $res');
                                           // Si el resultado del escaneo no es nulo
                                           if (res != null && res.isNotEmpty) {
                                             final detalleEncontrado =
@@ -546,7 +548,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             onItemTap: (p0) async {
                               final detalleEncontrado = widget
                                   .orden.documentLines!
-                                  .firstWhere((item) => item.itemCode == p0,
+                                  .firstWhere((item) => item.barCode == p0,
                                       orElse: () => DocumentLineOrdenVenta());
                               DetalleDocumento detalleConteoEncontrado =
                                   DetalleDocumento();
@@ -554,7 +556,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 detalleConteoEncontrado = widget
                                     .orden.documento!.detalles!
                                     .firstWhere(
-                                        (item) => item.codigoItem == p0,
+                                        (item) => item.codigoBarras == p0,
                                         orElse: () => DetalleDocumento());
                               }
                         
@@ -687,7 +689,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             docNum:
                                                 widget.orden.docNum.toString(),
                                             tipoDocumento:
-                                                widget.orden.docType!));
+                                                widget.tipoDocumento));
                                   },
                                   label: const Text('INICIAR CONTEO'),
                                   icon: const Icon(
@@ -836,7 +838,6 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                     FloatingActionButton.small(
                       backgroundColor: Colors.red,
                       onPressed: () {
-                        print(detalleConteo.cantidadContada);
                         final valor = cantidadController.text;
                         if(int.parse(valor) > 0){
                           cantidadController.text = (int.parse(valor) - 1).toString();

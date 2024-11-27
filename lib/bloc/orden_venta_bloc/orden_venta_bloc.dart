@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picking_app/bloc/bloc.dart';
+import 'package:picking_app/models/api_response_model.dart';
 import 'package:picking_app/repository/factura_repository.dart';
 import 'package:picking_app/repository/orden_venta_repository.dart';
 
@@ -34,7 +35,10 @@ class OrdenVentaBloc extends Bloc<OrdenVentaEvent, OrdenVentaState>{
   Future<void> _onObtenerOrdenesVentaBySearch(ObtenerOrdenesVentaBySearch event, Emitter<OrdenVentaState> emit) async {
     emit(OrdenVentaCargando());
     try {
-      final response = await repository.obtenerOrdenesDeVentaBySearch(event.search);
+      // TODO: Completar los metodos para otros tipos de documentos
+      final response = event.tipoDocumento == 'orden_venta' ? await repository.obtenerOrdenesDeVentaBySearch(event.search)
+        : event.tipoDocumento == 'factura' ? await facturaRepository.obtenerFacturaBySearch(event.search)
+        : await facturaRepository.obtenerFacturaBySearch(event.search); // Modificar esta linea 
       
       if(response.isSuccessful && response.resultado != null){
         emit(OrdenVentaCargada(response));
