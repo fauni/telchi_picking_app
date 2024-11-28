@@ -104,7 +104,9 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
           ? 'Orden de Venta'
           : widget.tipoDocumento == 'factura' 
             ? 'Factura de Venta'
-            : 'No se reconoce',
+            : widget.tipoDocumento == 'factura_compra' 
+              ? 'Factura de Compra'
+              : 'No se reconoce',
         icon: Icons.refresh,
         onPush: () => cargarOrdenesBySearch(),
       ),

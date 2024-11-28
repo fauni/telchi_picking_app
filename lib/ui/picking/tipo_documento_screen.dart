@@ -33,7 +33,7 @@ class TipoDocumentoScreen extends StatelessWidget {
                   // Botón ORDEN DE VENTA
                   ButtonTipoDocumento(
                     icon: Icons.description,
-                    label: "ORDEN DE VENTA",
+                    label: "ORDEN DE \n VENTA",
                     color: Theme.of(context).colorScheme.primary,
                     onPressed: () {
                       context.push('/ordenventa', extra: 'orden_venta');
@@ -42,7 +42,7 @@ class TipoDocumentoScreen extends StatelessWidget {
                   // Botón ORDEN DE VENTA
                   ButtonTipoDocumento(
                     icon: Icons.receipt,
-                    label: "FACTURA DE VENTAS",
+                    label: "FACTURA DE \n VENTAS",
                     color: Theme.of(context).colorScheme.primary,
                     onPressed: () {
                       context.push('/ordenventa', extra: 'factura');
@@ -50,15 +50,17 @@ class TipoDocumentoScreen extends StatelessWidget {
                   ),
                   // Botón ORDEN DE VENTA
                   ButtonTipoDocumento(
-                    icon: Icons.attach_money,
-                    label: "TRANSFERENCIAS",
+                    icon: Icons.inventory_outlined,
+                    label: "FACTURA DE \n COMPRAS",
                     color: Theme.of(context).colorScheme.primary,
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/ordenventa', extra: 'factura_compra');
+                    },
                   ),
                   // Botón ORDEN DE VENTA
                   ButtonTipoDocumento(
                     icon: Icons.swap_horiz,
-                    label: "ORDEN DE VENTA",
+                    label: "TRANSFERENCIAS",
                     color: Theme.of(context).colorScheme.primary,
                     onPressed: () {
                       context.push('/ordenventa');
