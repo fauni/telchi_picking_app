@@ -252,7 +252,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 titulo: 'Tipo de Documento',
                                 valor:  widget.tipoDocumento == 'orden_venta' ? 'Orden de Venta'
                                   : widget.tipoDocumento == 'factura' ? 'Factura de Venta'
-                                  : 'Otro', // TODO: Completar validación para otros tipos de documentos
+                                  : 'Factura de Compra'
                               ),
                               ItemDetalleWidget(
                                 titulo: 'Número de Documento',
