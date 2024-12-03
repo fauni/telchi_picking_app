@@ -29,7 +29,7 @@ class DetalleOrdenVentaScreen extends StatefulWidget {
 class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   TextEditingController controllerSearch = TextEditingController();
 
-  List<String> estados = ['Todos', 'Pendientes', 'En Progreso', 'Completadas'];
+  List<String> estados = ['Todos', 'Pendiente', 'En Progreso', 'Completado'];
   String estadoSeleccionado = 'Todos';
   bool conteoIniciado = false;
   bool conteoFinalizado = false;
@@ -126,31 +126,24 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
 
     List<DocumentLineOrdenVenta> itemsFiltrados = widget.orden.documentLines!;
 
-    // Filtrar por estado
-    if (estadoSeleccionado != 'Todos') {
-      itemsFiltrados = itemsFiltrados.where((item) {
-        final detalles = widget.orden.documento?.detalles;
-        if (detalles != null) {
-          final detalle = detalles.firstWhere(
-            (d) => d.codigoItem == item.itemCode,
-            orElse: () => DetalleDocumento(estado: 'Pendiente'),
-          );
-          return detalle.estado == estadoSeleccionado;
-        }
-        return false;
-      }).toList();
-    }
+    if(controllerSearch.text.isEmpty){
+      // Filtrar por estado
+      if (estadoSeleccionado != 'Todos') {
+        itemsFiltrados = itemsFiltrados.where((item) {
+          return item.detalleDocumento!.estado!.toLowerCase() == estadoSeleccionado.toLowerCase();
+        }).toList();
+      } 
+      return itemsFiltrados;
+    } else{
+      // Filtrar por texto ingresado en el buscador
+      final textoBusqueda = controllerSearch.text.toLowerCase();
 
-    // Filtrar por texto ingresado en el buscador
-    final textoBusqueda = controllerSearch.text.toLowerCase();
-    if (textoBusqueda.isNotEmpty) {
       itemsFiltrados = itemsFiltrados.where((item) {
         return item.itemCode!.toLowerCase().contains(textoBusqueda) ||
             item.itemDescription!.toLowerCase().contains(textoBusqueda);
       }).toList();
+      return itemsFiltrados;
     }
-
-    return itemsFiltrados;
   }
 
   List<DocumentLineOrdenVenta> obtenerDetalleOrdenPorDetalle() {
@@ -190,12 +183,19 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   List<DetalleDocumento> obtenerDetalleDocumentoPorEstado(String estado) {
-    return widget.orden.documento!.detalles!
-        .where((detalle) => detalle.estado == estado)
-        .toList();
+    final detalles = widget.orden.documento?.detalles ?? [];
+    List<DetalleDocumento> detallesFiltrados = [];
+
+    for (var detalle in detalles) {
+      // Depuración: puedes poner un punto de interrupción aquí
+      if (detalle.estado == estado) {
+        detallesFiltrados.add(detalle);
+      }
+    }
+
+    return detallesFiltrados;
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -534,7 +534,6 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: ListaItemsDetalleOrdenVenta(
                             items: filtrarItemsPorEstado(),
-                            itemsConteo: filtrarItemsDetallesPorEstado(),
                             onItemTap: (p0) async {
                               final detalleEncontrado = widget
                                   .orden.documentLines!
@@ -938,13 +937,11 @@ class ListaItemsDetalleOrdenVenta extends StatefulWidget {
     {
       super.key, 
       required this.items, 
-      required this.itemsConteo,
       required this.onItemTap,
     }
   );
 
   List<DocumentLineOrdenVenta> items;
-  List<DetalleDocumento> itemsConteo;
   final Function(String) onItemTap;
 
 
@@ -959,10 +956,6 @@ class _ListaItemsDetalleOrdenVentaState extends State<ListaItemsDetalleOrdenVent
         shrinkWrap: true,
         itemBuilder: (context, index) {
           DocumentLineOrdenVenta item = widget.items[index];
-          DetalleDocumento itemConteo = DetalleDocumento();
-          if (widget.itemsConteo.isNotEmpty) {
-            itemConteo = widget.itemsConteo[index];
-          }
           return Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
@@ -972,8 +965,6 @@ class _ListaItemsDetalleOrdenVentaState extends State<ListaItemsDetalleOrdenVent
                   borderRadius: BorderRadius.circular(10)),
               child: ItemListDetalleOrdenVenta(
                 detalle: item,
-                detalleConteo:
-                    widget.itemsConteo.isNotEmpty ? itemConteo : DetalleDocumento(),
                 onTap: () => widget.onItemTap(item.itemCode!),
               ));
         },

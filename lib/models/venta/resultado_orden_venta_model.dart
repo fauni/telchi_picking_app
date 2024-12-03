@@ -104,6 +104,7 @@ class DocumentLineOrdenVenta {
     final double? priceAfterVat;
     final String? currency;
     final String? barCode;
+    final DetalleDocumento? detalleDocumento;
     final List<LineTaxJurisdiction>? lineTaxJurisdictions;
 
     DocumentLineOrdenVenta({
@@ -115,6 +116,7 @@ class DocumentLineOrdenVenta {
         this.priceAfterVat,
         this.currency,
         this.barCode,
+        this.detalleDocumento,
         this.lineTaxJurisdictions,
     });
 
@@ -127,6 +129,7 @@ class DocumentLineOrdenVenta {
         double? priceAfterVat,
         String? currency,
         String? barCode,
+        DetalleDocumento? detalleDocumento,
         List<LineTaxJurisdiction>? lineTaxJurisdictions,
     }) => 
         DocumentLineOrdenVenta(
@@ -138,6 +141,7 @@ class DocumentLineOrdenVenta {
             priceAfterVat: priceAfterVat ?? this.priceAfterVat,
             currency: currency ?? this.currency,
             barCode: barCode ?? this.barCode,
+            detalleDocumento: detalleDocumento ?? this.detalleDocumento,
             lineTaxJurisdictions: lineTaxJurisdictions ?? this.lineTaxJurisdictions,
         );
 
@@ -150,6 +154,7 @@ class DocumentLineOrdenVenta {
         priceAfterVat: json["priceAfterVat"]?.toDouble(),
         currency: json["currency"],
         barCode: json["barCode"],
+        detalleDocumento: json["detalleDocumento"] == null ? null :DetalleDocumento.fromJson(json["detalleDocumento"]), // Aqui transforma el map en DetalleDocumento
         lineTaxJurisdictions: json["lineTaxJurisdictions"] == null ? [] : List<LineTaxJurisdiction>.from(json["lineTaxJurisdictions"]!.map((x) => LineTaxJurisdiction.fromJson(x))),
     );
 
@@ -162,6 +167,7 @@ class DocumentLineOrdenVenta {
         "priceAfterVat": priceAfterVat,
         "currency": currency,
         "barCode": barCode,
+        "detalleDocumento": detalleDocumento,
         "lineTaxJurisdictions": lineTaxJurisdictions == null ? [] : List<dynamic>.from(lineTaxJurisdictions!.map((x) => x.toJson())),
     };
 }

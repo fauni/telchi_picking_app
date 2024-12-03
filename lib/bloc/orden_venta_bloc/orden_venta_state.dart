@@ -32,9 +32,10 @@ class OrdenVentaCargada extends OrdenVentaState {
 
 
 class OrdenVentaError extends OrdenVentaState {
+  final int codigoEstado;
   final String mensaje;
-  const OrdenVentaError(this.mensaje);
+  const OrdenVentaError(this.codigoEstado, this.mensaje);
   
   @override
-  List<Object> get props => [mensaje];
+  List<Object> get props => [codigoEstado, mensaje];
 }

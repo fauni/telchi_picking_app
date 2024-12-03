@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:picking_app/models/picking/documento_model.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 
 // ignore: must_be_immutable
@@ -7,12 +6,10 @@ class ItemListDetalleOrdenVenta extends StatefulWidget {
   ItemListDetalleOrdenVenta({
     super.key,
     required this.detalle,
-    this.detalleConteo,
     required this.onTap
   });
 
   final DocumentLineOrdenVenta detalle;
-  DetalleDocumento? detalleConteo;
   final VoidCallback onTap; 
   @override
   State<ItemListDetalleOrdenVenta> createState() => _ItemListDetalleOrdenVentaState();
@@ -36,11 +33,12 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
             Container(
               width: 5,
               height: 70,
-              color: widget.detalleConteo!.estado == 'Completado' 
+              color: widget.detalle.detalleDocumento == null ? Colors.grey
+              : widget.detalle.detalleDocumento!.estado == 'Completado' 
                 ? Colors.green
-                : widget.detalleConteo!.estado == 'Pendiente'  
+                : widget.detalle.detalleDocumento!.estado == 'Pendiente'  
                   ? Colors.grey 
-                  : widget.detalleConteo!.estado == 'En Progreso' ? Colors.yellow : Colors.grey,
+                  : widget.detalle.detalleDocumento!.estado == 'En Progreso' ? Colors.yellow : Colors.grey,
             ),
             const SizedBox(width: 10,),
             Expanded(
@@ -51,8 +49,7 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('${widget.detalle.itemCode}', style: Theme.of(context).textTheme.titleMedium,),
-                      // detalle!.barCode == null ? Text(detalle.barCode!) : const Text('') 
-                      // Text('${detalle.currency}', style: const TextStyle(fontWeight: FontWeight.w100),),
+                      Text(widget.detalle.barCode ?? '', style: Theme.of(context).textTheme.titleMedium,),
                     ],
                   ),
                   Text('${widget.detalle.itemDescription}', style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).colorScheme.primary),),
@@ -67,9 +64,9 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Cantidad Contada', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey),),
-                      widget.detalleConteo!.idDetalle == null 
+                      widget.detalle.detalleDocumento == null 
                       ? const Text('0', style: TextStyle(fontWeight: FontWeight.w100),)
-                      : Text('${widget.detalleConteo!.cantidadContada!.toInt()}', style: const TextStyle(fontWeight: FontWeight.w100),),
+                      : Text('${widget.detalle.detalleDocumento!.cantidadContada!.toInt()}', style: const TextStyle(fontWeight: FontWeight.w100),),
                     ],
                   )
                 ],

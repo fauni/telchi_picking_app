@@ -90,4 +90,20 @@ class AuthRepository {
       );
     }
   }
+
+  /// Método para verificar si el usuario está autenticado
+  Future<bool> checkAuthentication() async {
+    final token = await getToken();
+    final user = await getUserData();
+
+    // Si hay un token válido y datos de usuario, se considera autenticado
+    if (token != null && token.isNotEmpty && user != null) {
+      // Aquí puedes agregar lógica adicional para verificar la validez del token, 
+      // como realizar una llamada a un endpoint para validar el token.
+      return true;
+    }
+
+    // Si no hay token o datos de usuario, no está autenticado
+    return false;
+  }
 }

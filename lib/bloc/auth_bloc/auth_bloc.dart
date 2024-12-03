@@ -12,6 +12,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         on<LoginRequested>(_onLoginRequested);
         on<LoginEvent>(_onLogin);
         on<LogoutEvent>(_onLogout);
+        on<CheckAuthEvent>(_onCheckAuth); // Nuevo evento para verificar autenticación
+
     }
 
     Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
@@ -56,4 +58,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         emit(Unauthenticated());
       }
     }
+
+    Future<void> _onCheckAuth(CheckAuthEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading()); // Emitimos un estado de carga mientras verificamos
+    try {
+      final isAuthenticated = await authRepository.checkAuthentication();
+      if (isAuthenticated) {
+        final user = await authRepository.getUserData();
+        if (user != null) {
+          emit(Authenticated(user));
+        } else {
+          emit(Unauthenticated());
+        }
+      } else {
+        emit(Unauthenticated());
+      }
+    } catch (e) {
+      emit(AuthFailure("Error checking authentication: $e"));
+    }
+  }
 }

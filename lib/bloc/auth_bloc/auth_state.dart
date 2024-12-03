@@ -37,3 +37,5 @@ class Authenticated extends AuthState {
   List<Object> get props => [usuario];
 }
 class Unauthenticated extends AuthState {}
+
+class AuthChecking extends AuthState {}

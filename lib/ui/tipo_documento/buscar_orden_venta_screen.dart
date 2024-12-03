@@ -159,7 +159,14 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
             ),
           ]),
           Expanded(
-            child: BlocBuilder<OrdenVentaBloc, OrdenVentaState>(
+            child: BlocConsumer<OrdenVentaBloc, OrdenVentaState>(
+              listener: (context, state) {
+                if(state is OrdenVentaError){
+                  if(state.codigoEstado == 401) {
+                    BlocProvider.of<AuthBloc>(context).add(LogoutEvent());
+                  }
+                }
+              },
               builder: (context, state) {
                 if (state is OrdenVentaCargando) {
                   return const Center(

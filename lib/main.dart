@@ -20,29 +20,34 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: CommonBloc.blocProviders,
-      child: MaterialApp.router(
-        title: 'Picking Facil',
-        debugShowCheckedModeBanner: false,
-        routerConfig: appRouter,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            primary: AppColors.primaryBlue,
-            secondary: AppColors.secondaryBlue,
-            tertiary: AppColors.primaryYellow
-          ),
-          useMaterial3: true,
-        ),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es'), // Español
-          Locale('en'), // Inglés
-        ],
-        locale: const Locale('es'), // Fija el idioma en español
+      child: Builder(
+        builder: (context) {
+          final router = createAppRouter(context);
+          return MaterialApp.router(
+            title: 'Picking Facil',
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple,
+                primary: AppColors.primaryBlue,
+                secondary: AppColors.secondaryBlue,
+                tertiary: AppColors.primaryYellow
+              ),
+              useMaterial3: true,
+            ),
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('es'), // Español
+              Locale('en'), // Inglés
+            ],
+            locale: const Locale('es'), // Fija el idioma en español
+          );
+        }
       ),
     );
   }

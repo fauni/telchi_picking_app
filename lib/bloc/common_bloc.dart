@@ -10,7 +10,7 @@ import 'package:picking_app/repository/orden_venta_repository.dart';
 
 class CommonBloc {
   // Instancia del AuthBloc
-  static final AuthBloc authBloc = AuthBloc(AuthRepository());
+  static final AuthBloc authBloc = AuthBloc(AuthRepository())..add(CheckAuthEvent());
   static final OrdenVentaBloc ordenVentaBloc = OrdenVentaBloc(OrdenVentaRepository(), FacturaRepository(), FacturaCompraRepository());
   static final DetalleOrdenVentaBloc detalleOrdenVentaBloc = DetalleOrdenVentaBloc(OrdenVentaRepository(), FacturaRepository(), FacturaCompraRepository());
   static final DocumentoBloc documentoBloc = DocumentoBloc(DocumentoRepository());

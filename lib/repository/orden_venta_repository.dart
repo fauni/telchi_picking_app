@@ -43,11 +43,12 @@ class OrdenVentaRepository {
         // Manejo de errores en caso de que no se tenga exito
         final data = json.decode(response.body);
         final errorMessage = data['errorMessages'] ?? 'An error ocurred';
+        // final responsefinal = ApiResponse<ResultadoOrdenVentaModel>(statusCode: statusCode, isSuccessful: isSuccessful)
         return ApiResponseList<ResultadoOrdenVentaModel> (
           isSuccessful: false,
-          statusCode: response.statusCode,
-          errorMessages: [errorMessage],
-          resultado: null
+          statusCode: response.statusCode
+          // errorMessages: [errorMessage],
+          // resultado: null
         );
       }  
     } catch (e) {

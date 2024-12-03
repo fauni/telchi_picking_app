@@ -27,10 +27,10 @@ class OrdenVentaBloc extends Bloc<OrdenVentaEvent, OrdenVentaState>{
       if(response.isSuccessful && response.resultado != null){
         emit(OrdenVentaCargada(response));
       } else {
-        emit(OrdenVentaError(response.errorMessages?.join(', ') ?? 'Error desconocido'));
+        emit(OrdenVentaError(response.statusCode, response.errorMessages?.join(', ') ?? 'Error desconocido'));
       }      
     } catch (e) {
-      emit(OrdenVentaError("${event.tipoDocumento}: Error al cargar los datos: $e"));
+      emit(OrdenVentaError(500, "${event.tipoDocumento}: Error al cargar los datos: $e"));
     }
   }
 
@@ -44,10 +44,10 @@ class OrdenVentaBloc extends Bloc<OrdenVentaEvent, OrdenVentaState>{
       if(response.isSuccessful && response.resultado != null){
         emit(OrdenVentaCargada(response));
       } else {
-        emit(OrdenVentaError(response.errorMessages?.join(', ') ?? 'Error desconocido'));
+        emit(OrdenVentaError(response.statusCode, response.errorMessages?.join(', ') ?? 'Error desconocido'));
       }
     } catch (e) {
-      emit(OrdenVentaError("Error al buscar los  datos: $e"));
+      emit(OrdenVentaError(500, "Error al buscar los  datos: $e"));
     }
   }
 }
