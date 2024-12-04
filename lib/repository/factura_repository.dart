@@ -46,16 +46,16 @@ class FacturaRepository {
         return ApiResponseList<ResultadoOrdenVentaModel> (
           isSuccessful: false,
           statusCode: response.statusCode,
-          errorMessages: [errorMessage],
-          resultado: null
+          // errorMessages: [errorMessage],
+          // resultado: null
         );
       }  
     } catch (e) {
       return ApiResponseList<ResultadoOrdenVentaModel>(
         isSuccessful: false,
         statusCode: 500,
-        errorMessages: ['An error ocurred: $e'],
-        resultado: null
+        // errorMessages: ['An error ocurred: $e'],
+        // resultado: null
       );
     }
   }
@@ -93,16 +93,16 @@ class FacturaRepository {
         return ApiResponseList<ResultadoOrdenVentaModel> (
           isSuccessful: false,
           statusCode: response.statusCode,
-          errorMessages: [errorMessage],
-          resultado: null
+          // errorMessages: [errorMessage],
+          // resultado: null
         );
       }  
     } catch (e) {
       return ApiResponseList<ResultadoOrdenVentaModel>(
         isSuccessful: false,
         statusCode: 500,
-        errorMessages: ['An error ocurred: $e'],
-        resultado: null
+        // errorMessages: ['An error ocurred: $e'],
+        // resultado: null
       );
     }
   }
@@ -135,16 +135,16 @@ class FacturaRepository {
         return ApiResponse<ResultadoOrdenVentaModel>(
           isSuccessful: false,
           statusCode: response.statusCode,
-          errorMessages: [errorMessage],
-          resultado: null,
+          // errorMessages: [errorMessage],
+          // resultado: null,
         );
       }
     } catch (e) {
       return ApiResponse<ResultadoOrdenVentaModel>(
         isSuccessful: false,
         statusCode: 500,
-        errorMessages: ['An error occurred: $e'],
-        resultado: null,
+        // errorMessages: ['An error occurred: $e'],
+        // resultado: null,
       );
     }
   }
