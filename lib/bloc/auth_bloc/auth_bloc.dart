@@ -12,6 +12,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         on<LoginRequested>(_onLoginRequested);
         on<LoginEvent>(_onLogin);
         on<LogoutEvent>(_onLogout);
+        on<ChangeTokenSapEvent>(_onChangeTokenSap);
         on<CheckAuthEvent>(_onCheckAuth); // Nuevo evento para verificar autenticación
 
     }
@@ -45,6 +46,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
     {
       await authRepository.clearUserData();
       emit(Unauthenticated());
+    }
+
+    Future<void> _onChangeTokenSap(ChangeTokenSapEvent event, Emitter<AuthState> emit) async
+    {
+      await authRepository.setOtherTokenSap();
+      emit(ChangeTokenSapSuccess());
     }
 
     Future<void> checkUserSession()async{

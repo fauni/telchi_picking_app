@@ -24,6 +24,9 @@ class HomeScreen extends StatelessWidget {
           title: const Text(''),
           // backgroundColor: Theme.of(context).colorScheme.tertiary,
           actions: [
+            IconButton(onPressed: (){
+              context.read<AuthBloc>().add(ChangeTokenSapEvent());
+            }, icon: const Icon(Icons.change_circle),),
             IconButton(
                 onPressed: () {
                   // Emite el evento de logout

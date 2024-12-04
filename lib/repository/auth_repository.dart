@@ -13,6 +13,10 @@ import 'package:http/http.dart' as http;
 class AuthRepository {
   final String _baseUrl = Environment.UrlApi;
 
+  Future<void> setOtherTokenSap() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token_sap', 'asdasdsadsad123123asdsa');
+  }
   Future<void> saveUserData(Usuario usuario, String token, String tokenSAP) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('usuario', jsonEncode(usuario));
