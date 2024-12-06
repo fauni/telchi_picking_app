@@ -6,9 +6,19 @@ import 'package:picking_app/bloc/auth_bloc/auth_event.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_state.dart';
 import 'package:picking_app/ui/widgets/custom_button_home.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    
+  }
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -24,9 +34,9 @@ class HomeScreen extends StatelessWidget {
           title: const Text(''),
           // backgroundColor: Theme.of(context).colorScheme.tertiary,
           actions: [
-            IconButton(onPressed: (){
-              context.read<AuthBloc>().add(ChangeTokenSapEvent());
-            }, icon: const Icon(Icons.change_circle),),
+            // IconButton(onPressed: (){
+            //   context.read<AuthBloc>().add(ChangeTokenSapEvent());
+            // }, icon: const Icon(Icons.change_circle),),
             IconButton(
                 onPressed: () {
                   // Emite el evento de logout
