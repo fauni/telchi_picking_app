@@ -3,8 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_bloc.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_state.dart';
+import 'package:picking_app/models/conteo/conteo_model.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/auth/login_screen.dart';
+import 'package:picking_app/ui/conteo/detalle_conteo_screen.dart';
+import 'package:picking_app/ui/conteo/listar_conteo_screen.dart';
 import 'package:picking_app/ui/main/home_screen.dart';
 import 'package:picking_app/ui/main/initial_screen.dart';
 import 'package:picking_app/ui/picking/detalle_orden_venta_screen.dart';
@@ -42,6 +45,19 @@ GoRouter createAppRouter(BuildContext context){
           String tipoDocumento = state.extra as String;
           return BuscarOrdenVentaScreen(tipoDocumento: tipoDocumento,);
         } 
+      ),
+      GoRoute(
+        path: '/conteo',
+        builder: (context, state) {
+          return const ListarConteoScreen();
+        } 
+      ),
+      GoRoute(
+        path: '/detalleconteo',
+        builder: (context, state) {
+          Conteo conteo = state.extra as Conteo;
+          return DetalleConteoScreen(conteo: conteo);
+        },
       ),
       GoRoute(
         path: '/detalleordenventa/:tipoDocumento',

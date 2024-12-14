@@ -22,6 +22,7 @@ class AuthRepository {
     await prefs.setString('usuario', jsonEncode(usuario));
     await prefs.setString('token', token);
     await prefs.setString('token_sap', tokenSAP);
+    await prefs.setString('almacenes', jsonEncode(usuario.almacenes));
   }
 
   Future<Usuario?> getUserData()async {

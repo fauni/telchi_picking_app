@@ -1,3 +1,5 @@
+import 'package:picking_app/models/almacen/almacen_model.dart';
+
 class Usuario {
   final int? id;
   final String? apellidoPaterno;
@@ -11,6 +13,7 @@ class Usuario {
   final bool? estaActivo;
   final DateTime? fechaCreacion;
   final dynamic fechaModificacion;
+  final List<Almacen>? almacenes;
 
   Usuario({
       this.id,
@@ -25,6 +28,7 @@ class Usuario {
       this.estaActivo,
       this.fechaCreacion,
       this.fechaModificacion,
+      this.almacenes
   });
 
   Usuario copyWith({
@@ -40,6 +44,7 @@ class Usuario {
       bool? estaActivo,
       DateTime? fechaCreacion,
       dynamic fechaModificacion,
+      List<Almacen>? almacenes
   }) => 
       Usuario(
           id: id ?? this.id,
@@ -54,6 +59,7 @@ class Usuario {
           estaActivo: estaActivo ?? this.estaActivo,
           fechaCreacion: fechaCreacion ?? this.fechaCreacion,
           fechaModificacion: fechaModificacion ?? this.fechaModificacion,
+          almacenes: almacenes ?? this.almacenes
       );
 
   factory Usuario.fromJson(Map<String, dynamic> json) => Usuario(
@@ -69,20 +75,22 @@ class Usuario {
       estaActivo: json["estaActivo"],
       fechaCreacion: json["fechaCreacion"] == null ? null : DateTime.parse(json["fechaCreacion"]),
       fechaModificacion: json["fechaModificacion"],
+      almacenes: json["almacenes"] == null ? [] : List<Almacen>.from(json["almacenes"]!.map((x) => Almacen.fromJson(x)))
   );
 
   Map<String, dynamic> toJson() => {
-      "id": id,
-      "apellidoPaterno": apellidoPaterno,
-      "apellidoMaterno": apellidoMaterno,
-      "nombres": nombres,
-      "usuarioNombre": usuarioNombre,
-      "email": email,
-      "passwordHash": passwordHash,
-      "passwordSalt": passwordSalt,
-      "estaBloqueado": estaBloqueado,
-      "estaActivo": estaActivo,
-      "fechaCreacion": fechaCreacion?.toIso8601String(),
-      "fechaModificacion": fechaModificacion,
+    "id": id,
+    "apellidoPaterno": apellidoPaterno,
+    "apellidoMaterno": apellidoMaterno,
+    "nombres": nombres,
+    "usuarioNombre": usuarioNombre,
+    "email": email,
+    "passwordHash": passwordHash,
+    "passwordSalt": passwordSalt,
+    "estaBloqueado": estaBloqueado,
+    "estaActivo": estaActivo,
+    "fechaCreacion": fechaCreacion?.toIso8601String(),
+    "fechaModificacion": fechaModificacion,
+    "almacenes": almacenes == null ? [] : List<dynamic>.from(almacenes!.map((x) => x.toJson()))
   };
 }

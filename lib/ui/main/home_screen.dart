@@ -83,7 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
               CustomButtonHome(
                 icon: Icons.content_paste_outlined,
                 title: 'CONTEO',
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/conteo');
+                },
               ),
               const SizedBox(
                 height: 10,

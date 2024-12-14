@@ -116,7 +116,11 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
               textoHint: 'Buscar documento',
               iconoBoton: Icons.calendar_month_outlined,
               controllerSearch: controllerSearch,
-              onSearch: () => _selectDate(context)),
+              onSearch: () => _selectDate(context),
+              onClearSearch: () {
+                controllerSearch.text = '';
+              },
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton.icon(

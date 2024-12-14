@@ -335,6 +335,12 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                     textoHint: 'Escanear o ingresar código',
                                     iconoBoton: Icons.qr_code_scanner,
                                     controllerSearch: controllerSearch,
+                                    onClearSearch: () {
+                                      controllerSearch.text = '';
+                                      setState(() {
+                                        
+                                      });
+                                    },
                                     onChanged: (p0) {
                                       setState(() {
                                         

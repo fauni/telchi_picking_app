@@ -8,6 +8,7 @@ class BuscadorOrdenVenta extends StatefulWidget {
   final Function onSearch;
   final Function(String)? onSubmitted; // Nuevo parametro agregado
   final Function(String)? onChanged;
+  final VoidCallback onClearSearch;
 
 
   const BuscadorOrdenVenta(
@@ -18,7 +19,8 @@ class BuscadorOrdenVenta extends StatefulWidget {
       required this.controllerSearch,
       required this.onSearch,
       this.onSubmitted,
-      this.onChanged
+      this.onChanged,
+      required this.onClearSearch
     }
   );
 
@@ -62,9 +64,7 @@ class _BuscadorOrdenVentaState extends State<BuscadorOrdenVenta> {
                     color: Theme.of(context).colorScheme.primary),
                 suffixIcon: _hasText 
                 ? IconButton(
-                  onPressed: () {
-                    widget.controllerSearch.clear();
-                  },
+                  onPressed: widget.onClearSearch,
                   icon: const Icon(
                     Icons.clear,
                   ),
