@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +18,8 @@ import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 // ignore: must_be_immutable
 class DetalleOrdenVentaScreen extends StatefulWidget {
-  DetalleOrdenVentaScreen({super.key, required this.orden, required this.tipoDocumento});
+  DetalleOrdenVentaScreen(
+      {super.key, required this.orden, required this.tipoDocumento});
   ResultadoOrdenVentaModel orden;
   String tipoDocumento;
 
@@ -29,6 +31,7 @@ class DetalleOrdenVentaScreen extends StatefulWidget {
 class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   TextEditingController controllerSearch = TextEditingController();
 
+  final AudioPlayer _audioPlayer = AudioPlayer();
   List<String> estados = ['Todos', 'Pendiente', 'En Progreso', 'Completado'];
   String estadoSeleccionado = 'Todos';
   bool conteoIniciado = false;
@@ -47,6 +50,19 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
     super.dispose();
   }
 
+  Future<void> playSound(int id) async {
+    // await _audioCache.play('audio/scan.mp3');
+    try {
+      if (id == 0) {
+        await _audioPlayer.play(AssetSource('sounds/error.mp3'));
+      } else {
+        await _audioPlayer.play(AssetSource('sounds/success.mp3'));
+      }
+    } catch (e) {
+      print('Error al reproducir el sonido: $e');
+    }
+  }
+
   void validaEstadoConteo() {
     if (widget.orden.documento == null) {
       conteoIniciado = false;
@@ -63,9 +79,8 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   void refrescarOrden() {
-    context
-        .read<DetalleOrdenVentaBloc>()
-        .add(ObtenerOrdenVentaByDocNum(widget.orden.docNum.toString(), widget.tipoDocumento));
+    context.read<DetalleOrdenVentaBloc>().add(ObtenerOrdenVentaByDocNum(
+        widget.orden.docNum.toString(), widget.tipoDocumento));
   }
 
   void _showBackDialog() {
@@ -126,15 +141,16 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
 
     List<DocumentLineOrdenVenta> itemsFiltrados = widget.orden.documentLines!;
 
-    if(controllerSearch.text.isEmpty){
+    if (controllerSearch.text.isEmpty) {
       // Filtrar por estado
       if (estadoSeleccionado != 'Todos') {
         itemsFiltrados = itemsFiltrados.where((item) {
-          return item.detalleDocumento!.estado!.toLowerCase() == estadoSeleccionado.toLowerCase();
+          return item.detalleDocumento!.estado!.toLowerCase() ==
+              estadoSeleccionado.toLowerCase();
         }).toList();
-      } 
+      }
       return itemsFiltrados;
-    } else{
+    } else {
       // Filtrar por texto ingresado en el buscador
       final textoBusqueda = controllerSearch.text.toLowerCase();
 
@@ -249,11 +265,12 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ItemDetalleWidget(
-                                titulo: 'Tipo de Documento',
-                                valor:  widget.tipoDocumento == 'orden_venta' ? 'Orden de Venta'
-                                  : widget.tipoDocumento == 'factura' ? 'Factura de Venta'
-                                  : 'Factura de Compra'
-                              ),
+                                  titulo: 'Tipo de Documento',
+                                  valor: widget.tipoDocumento == 'orden_venta'
+                                      ? 'Orden de Venta'
+                                      : widget.tipoDocumento == 'factura'
+                                          ? 'Factura de Venta'
+                                          : 'Factura de Compra'),
                               ItemDetalleWidget(
                                 titulo: 'Número de Documento',
                                 valor: widget.orden.docNum.toString(),
@@ -275,27 +292,34 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           child: Row(
                             children: [
                               FloatingActionButton.small(
-                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
                                 foregroundColor: Colors.white,
                                 onPressed: () async {
-                                  final detalleEncontrado = widget
-                                      .orden.documentLines!
-                                      .firstWhere((item) => item.itemCode == controllerSearch.text,
-                                          orElse: () => DocumentLineOrdenVenta());
+                                  final detalleEncontrado =
+                                      widget.orden.documentLines!.firstWhere(
+                                          (item) =>
+                                              item.itemCode ==
+                                              controllerSearch.text,
+                                          orElse: () =>
+                                              DocumentLineOrdenVenta());
                                   DetalleDocumento detalleConteoEncontrado =
                                       DetalleDocumento();
                                   if (widget.orden.documento != null) {
                                     detalleConteoEncontrado = widget
                                         .orden.documento!.detalles!
                                         .firstWhere(
-                                            (item) => item.codigoItem == controllerSearch.text,
+                                            (item) =>
+                                                item.codigoItem ==
+                                                controllerSearch.text,
                                             orElse: () => DetalleDocumento());
                                   }
-                            
+
                                   if (detalleEncontrado.itemCode != null) {
                                     // Mostrar el diálogo si se encuentra el detalle
                                     if (conteoIniciado != true) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
                                           content: Text(
                                             'Es necesario que presiones INICIAR CONTEO',
@@ -305,18 +329,20 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                         ),
                                       );
                                     } else {
+                                      await playSound(1);
                                       // ignore: unused_local_variable
-                                      final result = await _mostrarDialogoCantidad(
-                                          context,
-                                          detalleEncontrado,
-                                          detalleConteoEncontrado);
+                                      final result =
+                                          await _mostrarDialogoCantidad(
+                                              context,
+                                              detalleEncontrado,
+                                              detalleConteoEncontrado);
                                       setState(() {
-                                        
                                         // print(result);
                                         // estadoSeleccionado = 'En Progreso';
                                       });
                                     }
                                   } else {
+                                    await playSound(0);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -327,7 +353,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                       ),
                                     );
                                   }
-                                }, 
+                                },
                                 child: const Icon(Icons.input),
                               ),
                               Expanded(
@@ -337,34 +363,35 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                     controllerSearch: controllerSearch,
                                     onClearSearch: () {
                                       controllerSearch.text = '';
-                                      setState(() {
-                                        
-                                      });
+                                      setState(() {});
                                     },
                                     onChanged: (p0) {
-                                      setState(() {
-                                        
-                                      });
+                                      setState(() {});
                                     },
                                     onSubmitted: (value) async {
                                       final detalleEncontrado = widget
                                           .orden.documentLines!
-                                          .firstWhere((item) => item.itemCode == value,
-                                              orElse: () => DocumentLineOrdenVenta());
+                                          .firstWhere(
+                                              (item) => item.itemCode == value,
+                                              orElse: () =>
+                                                  DocumentLineOrdenVenta());
                                       DetalleDocumento detalleConteoEncontrado =
                                           DetalleDocumento();
                                       if (widget.orden.documento != null) {
                                         detalleConteoEncontrado = widget
                                             .orden.documento!.detalles!
                                             .firstWhere(
-                                                (item) => item.codigoItem == value,
-                                                orElse: () => DetalleDocumento());
+                                                (item) =>
+                                                    item.codigoItem == value,
+                                                orElse: () =>
+                                                    DetalleDocumento());
                                       }
-                                
+
                                       if (detalleEncontrado.itemCode != null) {
                                         // Mostrar el diálogo si se encuentra el detalle
                                         if (conteoIniciado != true) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Es necesario que presiones INICIAR CONTEO',
@@ -375,21 +402,26 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                           );
                                         } else {
                                           // ignore: unused_local_variable
-                                          final result = await _mostrarDialogoCantidad(
-                                              context,
-                                              detalleEncontrado,
-                                              detalleConteoEncontrado);
+                                          await playSound(1);
+                                          final result =
+                                              await _mostrarDialogoCantidad(
+                                                  context,
+                                                  detalleEncontrado,
+                                                  detalleConteoEncontrado);
                                           setState(() {
                                             // print(result);
                                             // estadoSeleccionado = 'En Progreso';
                                           });
                                         }
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        await playSound(0);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
                                             content: Text(
                                               'El código $value no se encuentra en la lista.',
-                                              style: const TextStyle(fontSize: 15),
+                                              style:
+                                                  const TextStyle(fontSize: 15),
                                             ),
                                             backgroundColor: Colors.red,
                                           ),
@@ -398,7 +430,8 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                     },
                                     onSearch: () async {
                                       if (Platform.isWindows) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
                                             content: Text(
                                               'Esta funcionalidad solo esta disponible en dispositivos móviles',
@@ -410,10 +443,12 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                       } else {
                                         if (conteoIniciado) {
                                           String? res =
-                                              await SimpleBarcodeScanner.scanBarcode(
+                                              await SimpleBarcodeScanner
+                                                  .scanBarcode(
                                             context,
                                             barcodeAppBar: const BarcodeAppBar(
-                                                appBarTitle: 'Escanear codigo del Item',
+                                                appBarTitle:
+                                                    'Escanear codigo del Item',
                                                 centerTitle: false,
                                                 enableBackButton: true,
                                                 backButtonIcon:
@@ -424,21 +459,26 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                           );
                                           // Si el resultado del escaneo no es nulo
                                           if (res != null && res.isNotEmpty) {
-                                            final detalleEncontrado =
-                                                widget.orden.documentLines!.firstWhere(
+                                            final detalleEncontrado = widget
+                                                .orden.documentLines!
+                                                .firstWhere(
                                               (item) => item.barCode == res,
-                                              orElse: () => DocumentLineOrdenVenta(),
+                                              orElse: () =>
+                                                  DocumentLineOrdenVenta(),
                                             );
-                                
-                                            final detalleConteoEncontrado = widget
-                                                .orden.documento?.detalles
-                                                ?.firstWhere(
-                                              (item) => item.codigoBarras == res,
+
+                                            final detalleConteoEncontrado =
+                                                widget.orden.documento?.detalles
+                                                    ?.firstWhere(
+                                              (item) =>
+                                                  item.codigoBarras == res,
                                               orElse: () => DetalleDocumento(),
                                             );
-                                
+
                                             // Verifica si el detalle fue encontrado
-                                            if (detalleEncontrado.itemCode != null) {
+                                            if (detalleEncontrado.itemCode !=
+                                                null) {
+                                              await playSound(1);
                                               // Abre el diálogo para agregar cantidad
                                               _mostrarDialogoCantidad(
                                                   // ignore: use_build_context_synchronously
@@ -447,6 +487,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                                   detalleConteoEncontrado ??
                                                       DetalleDocumento());
                                             } else {
+                                              await playSound(0);
                                               // Muestra un mensaje si el ítem no fue encontrado
                                               // ignore: use_build_context_synchronously
                                               ScaffoldMessenger.of(context)
@@ -461,7 +502,8 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                           } else {
                                             // Muestra un mensaje si el escaneo no produjo un resultado válido
                                             // ignore: use_build_context_synchronously
-                                            ScaffoldMessenger.of(context).showSnackBar(
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
                                               const SnackBar(
                                                 content: Text(
                                                     'No se pudo leer el código de barras. Inténtelo nuevamente.'),
@@ -470,7 +512,8 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                             );
                                           }
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Es necesario que presiones INICIAR CONTEO',
@@ -481,7 +524,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                           );
                                         }
                                       }
-                                
+
                                       setState(() {});
                                     }),
                               ),
@@ -550,11 +593,10 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                               if (widget.orden.documento != null) {
                                 detalleConteoEncontrado = widget
                                     .orden.documento!.detalles!
-                                    .firstWhere(
-                                        (item) => item.codigoItem == p0,
+                                    .firstWhere((item) => item.codigoItem == p0,
                                         orElse: () => DetalleDocumento());
                               }
-                        
+
                               if (detalleEncontrado.itemCode != null) {
                                 // Mostrar el diálogo si se encuentra el detalle
                                 if (conteoIniciado != true) {
@@ -657,11 +699,12 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                               ? ElevatedButton.icon(
                                   onPressed: () async {
                                     context.read<DocumentoBloc>().add(
-                                      SaveConteoForDocNumToSap(
-                                        docNum: widget.orden.docNum.toString(),
-                                        tipoDocumento: widget.tipoDocumento
-                                      ),
-                                    );
+                                          SaveConteoForDocNumToSap(
+                                              docNum: widget.orden.docNum
+                                                  .toString(),
+                                              tipoDocumento:
+                                                  widget.tipoDocumento),
+                                        );
                                   },
                                   label: const Text('ENVIAR CONTEO A SAP'),
                                   icon: const Icon(
@@ -770,12 +813,8 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
       builder: (context) {
         return AlertDialog(
           title: Column(
-            children: [
-              Text(detalle.itemCode.toString()),
-              const Divider()
-            ],
+            children: [Text(detalle.itemCode.toString()), const Divider()],
           ),
-
           content: SizedBox(
             height: 200,
             child: Column(
@@ -804,7 +843,16 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                       'Cantidad Contada: ',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    Text((detalleConteo.cantidadContada!.toInt()).toString()),
+                    BlocBuilder<ReiniciaDetalleDocumentoBloc,
+                        DetalleDocumentoState>(
+                      builder: (context, state) {
+                        if (state is DetalleDocumentoReiniciarCantidadSuccess) {
+                          detalleConteo.cantidadContada = 0;
+                        }
+                        return Text(detalleConteo.cantidadContada.toString());
+                      },
+                    )
+                    // Text((detalleConteo.cantidadContada!.toInt()).toString()),
                   ],
                 ),
                 Row(
@@ -823,22 +871,28 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10,),
+                    const SizedBox(
+                      width: 10,
+                    ),
                     FloatingActionButton.small(
                       backgroundColor: Colors.green,
                       onPressed: () {
                         final valor = cantidadController.text;
-                        cantidadController.text = (int.parse(valor) + 1).toString();
+                        cantidadController.text =
+                            (int.parse(valor) + 1).toString();
                       },
                       child: const Icon(Icons.add),
                     ),
-                    const SizedBox(width: 10,),
+                    const SizedBox(
+                      width: 10,
+                    ),
                     FloatingActionButton.small(
                       backgroundColor: Colors.red,
                       onPressed: () {
                         final valor = cantidadController.text;
-                        if(int.parse(valor) > 0){
-                          cantidadController.text = (int.parse(valor) - 1).toString();
+                        if (int.parse(valor) > 0) {
+                          cantidadController.text =
+                              (int.parse(valor) - 1).toString();
                         }
                       },
                       child: const Icon(Icons.remove),
@@ -846,89 +900,140 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                   ],
                 ),
                 detalle.quantity! > detalleConteo.cantidadContada!
-                  ? const SizedBox()
-                  : const Text('El conteo de este item ya fue completado.', style: TextStyle(color: Colors.green),)
+                    ? const SizedBox()
+                    : const Text(
+                        'El conteo de este item ya fue completado.',
+                        style: TextStyle(color: Colors.green),
+                      )
               ],
             ),
           ),
           actions: [
-            TextButton.icon(
-              onPressed: () {
-                Navigator.of(context).pop(false); // Cerrar el diálogo
-              },
-              icon: const Icon(Icons.close),
-              label: const Text('Volver'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.tertiary,
-                foregroundColor: Colors.white,
-                // padding: const EdgeInsets.symmetric(vertical: 16),
-                // minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                BlocConsumer<ReiniciaDetalleDocumentoBloc,
+                    DetalleDocumentoState>(
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    if (state is DetalleDocumentoReiniciado) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return SizedBox(
+                      width: 30,
+                      child: FloatingActionButton.small(
+                        onPressed: () {
+                          context.read<ReiniciaDetalleDocumentoBloc>().add(
+                              ReiniciarCantidadPorDetalle(
+                                  idDetalle: detalleConteo.idDetalle!,
+                                  cantidadAgregada: 0));
+                        },
+                        child: const Icon(Icons.restart_alt),
+                      ),
+                    );
+                  },
                 ),
-              ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pop(true); // Cerrar el diálogo
+                          },
+                          icon: const Icon(Icons.close),
+                          label: const Text('Volver'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.tertiary,
+                            foregroundColor: Colors.white,
+                            // padding: const EdgeInsets.symmetric(vertical: 16),
+                            // minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5,),
+                        BlocConsumer<DetalleDocumentoBloc,
+                            DetalleDocumentoState>(listener: (context, state) {
+                          if (state is DetalleDocumentoLoading) {
+                            // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
+                          } else if (state is DetalleDocumentoSuccess) {
+                            Navigator.of(context).pop(); // Cerrar el diálogo
+                            refrescarOrden();
+                          } else if (state is DetalleDocumentoError) {
+                            // Muestra un mensaje de error
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(state.error),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }, builder: (context, state) {
+                          if (state is DetalleDocumentoLoading) {
+                            return const CircularProgressIndicator();
+                          }
+                          return ElevatedButton.icon(
+                                  icon: const Icon(Icons.check),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    final cantidad = double.tryParse(
+                                        cantidadController.text);
+                                    if (cantidad == null || cantidad <= 0) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Ingrese una cantidad válida.'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                      return;
+                                    } else if (cantidad +
+                                            detalleConteo.cantidadContada! >
+                                        detalle.quantity!) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'La cantidad ingresada mas la cantidad contada exceden a la cantidad esperada, no es permitida esta operación.'),
+                                          backgroundColor: Colors.red,
+                                          duration: Duration(seconds: 5),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    // Aquí puedes realizar la lógica para agregar la cantidad
+                                    context.read<DetalleDocumentoBloc>().add(
+                                          ActualizarCantidadPorDetalle(
+                                              idDetalle:
+                                                  detalleConteo.idDetalle!,
+                                              cantidadAgregada: cantidad),
+                                        );
+                                  },
+                                  label: const Text('Confirmar'),
+                                );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            BlocConsumer<DetalleDocumentoBloc, DetalleDocumentoState>(
-                listener: (context, state) {
-              if (state is DetalleDocumentoLoading) {
-                // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
-              } else if (state is DetalleDocumentoSuccess) {
-                Navigator.of(context).pop(); // Cerrar el diálogo
-                refrescarOrden();
-              } else if (state is DetalleDocumentoError) {
-                // Muestra un mensaje de error
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.error),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            }, builder: (context, state) {
-              if (state is DetalleDocumentoLoading) {
-                return const CircularProgressIndicator();
-              }
-              return detalle.quantity! == detalleConteo.cantidadContada!
-            ? const SizedBox():  ElevatedButton.icon(
-                icon: const Icon(Icons.check),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  // padding: const EdgeInsets.symmetric(vertical: 16),
-                  // minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {
-                  final cantidad = double.tryParse(cantidadController.text);
-                  if (cantidad == null || cantidad <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Ingrese una cantidad válida.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                    return;
-                  } else if (cantidad + detalleConteo.cantidadContada! > detalle.quantity!){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('La cantidad ingresada mas la cantidad contada exceden a la cantidad esperada, no es permitida esta operación.'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 5),
-                      ),
-                    );
-                    return;
-                  }
-                  // Aquí puedes realizar la lógica para agregar la cantidad
-                  context.read<DetalleDocumentoBloc>().add(ActualizarCantidadPorDetalle(
-                    idDetalle: detalleConteo.idDetalle!,
-                    cantidadAgregada: cantidad),
-                  );
-                },
-                label: const Text('Confirmar'),
-              );
-            }),
           ],
         );
       },
@@ -936,26 +1041,24 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 }
 
-
 // ignore: must_be_immutable
 class ListaItemsDetalleOrdenVenta extends StatefulWidget {
-  ListaItemsDetalleOrdenVenta(
-    {
-      super.key, 
-      required this.items, 
-      required this.onItemTap,
-    }
-  );
+  ListaItemsDetalleOrdenVenta({
+    super.key,
+    required this.items,
+    required this.onItemTap,
+  });
 
   List<DocumentLineOrdenVenta> items;
   final Function(String) onItemTap;
 
-
   @override
-  State<ListaItemsDetalleOrdenVenta> createState() => _ListaItemsDetalleOrdenVentaState();
+  State<ListaItemsDetalleOrdenVenta> createState() =>
+      _ListaItemsDetalleOrdenVentaState();
 }
 
-class _ListaItemsDetalleOrdenVentaState extends State<ListaItemsDetalleOrdenVenta> {
+class _ListaItemsDetalleOrdenVentaState
+    extends State<ListaItemsDetalleOrdenVenta> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(

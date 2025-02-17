@@ -28,3 +28,14 @@ class DetalleDocumentoError extends DetalleDocumentoState {
   @override
   List<Object?> get props => [error];
 }
+
+class DetalleDocumentoReiniciado extends DetalleDocumentoState {}
+
+class DetalleDocumentoReiniciarCantidadSuccess extends DetalleDocumentoState {
+  final String mensaje;
+
+  const DetalleDocumentoReiniciarCantidadSuccess(this.mensaje);
+
+  @override
+  List<Object?> get props => [mensaje];
+}

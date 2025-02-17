@@ -17,8 +17,11 @@ class CommonBloc {
   static final DetalleOrdenVentaBloc detalleOrdenVentaBloc = DetalleOrdenVentaBloc(OrdenVentaRepository(), FacturaRepository(), FacturaCompraRepository());
   static final DocumentoBloc documentoBloc = DocumentoBloc(DocumentoRepository());
   static final DetalleDocumentoBloc detalleDocumentoBloc = DetalleDocumentoBloc(detalleDocumentoRepository: DetalleDocumentoRepository());
+  static final ReiniciaDetalleDocumentoBloc reiniciarDetalleDocumentoBloc = ReiniciaDetalleDocumentoBloc(detalleDocumentoRepository: DetalleDocumentoRepository());
   static final ConteoBloc conteoBloc = ConteoBloc(ConteoRepository());
   static final DetalleConteoBloc detalleConteoBloc = DetalleConteoBloc(DetalleConteoRepository());
+  static final ReiniciarDetalleConteoBloc reiniciarDetalleConteoBloc = ReiniciarDetalleConteoBloc(DetalleConteoRepository());
+  static final AlmacenBloc almacenBloc = AlmacenBloc(AuthRepository());
 
 
   // Lista de BlocProviders para proveer a toda la aplicación
@@ -28,8 +31,11 @@ class CommonBloc {
     BlocProvider<DetalleOrdenVentaBloc>(create: (context) => detalleOrdenVentaBloc,),
     BlocProvider<DocumentoBloc>(create: (context) => documentoBloc,),
     BlocProvider<DetalleDocumentoBloc>(create: (context) => detalleDocumentoBloc,),
+    BlocProvider<ReiniciaDetalleDocumentoBloc>(create: (context) => reiniciarDetalleDocumentoBloc,),
     BlocProvider<ConteoBloc>(create: (context)=>conteoBloc),
-    BlocProvider<DetalleConteoBloc>(create: (context) => detalleConteoBloc,)
+    BlocProvider<DetalleConteoBloc>(create: (context) => detalleConteoBloc,),
+    BlocProvider<ReiniciarDetalleConteoBloc>(create: (context) => reiniciarDetalleConteoBloc),
+    BlocProvider<AlmacenBloc>(create: (context) => almacenBloc)
   ];
 
   // Método para cerrar el bloc cuando no se necesite más
@@ -39,8 +45,11 @@ class CommonBloc {
     detalleDocumentoBloc.close();
     documentoBloc.close();
     detalleDocumentoBloc.close();
+    reiniciarDetalleDocumentoBloc.close();
     conteoBloc.close();
     detalleConteoBloc.close();
+    reiniciarDetalleConteoBloc.close();
+    almacenBloc.close();
   }
   
   static final CommonBloc _instance = CommonBloc._internal();

@@ -242,14 +242,7 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
                 orden: orden,
                 status: 'Pendiente',
                 onOpen: () async {
-                  final result =
-                      await context.push('/detalleordenventa/$tipoDocumento', extra: orden);
-                  // if(result == true) {
-                  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp){
-                  //     ordenVentaBloc.add(ObtenerOrdenesVenta());
-                  //   });
-
-                  // }
+                  final result = await context.push('/detalleordenventa/$tipoDocumento', extra: orden);
                   if (result == true) {
                     // ignore: use_build_context_synchronously
                     BlocProvider.of<OrdenVentaBloc>(context)

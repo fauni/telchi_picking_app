@@ -5,7 +5,7 @@ import 'package:picking_app/bloc/auth_bloc/auth_bloc.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_state.dart';
 
 class InitialScreen extends StatelessWidget {
-  const InitialScreen({Key? key}) : super(key: key);
+  const InitialScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

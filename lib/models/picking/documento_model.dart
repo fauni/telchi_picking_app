@@ -76,7 +76,7 @@ class DetalleDocumento {
     final String? codigoItem;
     final String? descripcionItem;
     final double? cantidadEsperada;
-    final double? cantidadContada;
+    double? cantidadContada;
     final String? estado;
     final String? codigoBarras;
     final List<dynamic>? conteos;

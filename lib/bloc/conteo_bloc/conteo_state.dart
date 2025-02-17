@@ -2,6 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:picking_app/models/api_reponse_list_model.dart';
+import 'package:picking_app/models/api_response_model.dart';
 import 'package:picking_app/models/conteo/conteo_model.dart';
 
 abstract class ConteoState extends Equatable {
@@ -16,6 +17,14 @@ class ConteoCargando extends ConteoState {}
 class ConteoCargado extends ConteoState {
   final ApiResponseList<Conteo> response;
   const ConteoCargado(this.response);
+
+  @override
+  List<Object> get props => [response];
+}
+
+class ConteoCreadoConExito extends ConteoState{
+  final ApiResponse<Conteo> response;
+  const ConteoCreadoConExito(this.response);
 
   @override
   List<Object> get props => [response];

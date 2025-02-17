@@ -9,13 +9,13 @@ Conteo conteoFromJson(String str) => Conteo.fromJson(json.decode(str));
 String conteoToJson(Conteo data) => json.encode(data.toJson());
 
 class Conteo {
-    final int? id;
-    final String? nombreUsuario;
-    final String? codigoAlmacen;
-    final String? comentarios;
-    final DateTime? fechaInicio;
-    final dynamic fechaFinalizacion;
-    final String? estado;
+    int? id;
+    String? nombreUsuario;
+    String? codigoAlmacen;
+    String? comentarios;
+    DateTime? fechaInicio;
+    dynamic fechaFinalizacion;
+    String? estado;
 
     Conteo({
         this.id,

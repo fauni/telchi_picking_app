@@ -1,9 +1,11 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_bloc.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_event.dart';
 import 'package:picking_app/bloc/auth_bloc/auth_state.dart';
+import 'package:picking_app/ui/conteo/agregar_conteo_screen.dart';
 import 'package:picking_app/ui/widgets/custom_button_home.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,10 +16,52 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   @override
   void initState() {
-    super.initState();
-    
+    super.initState();    
+  }
+
+  void _abrirAgregarConteo() async {
+    final resultado = await Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: true,
+        barrierDismissible: true,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return AgregarConteoScreen();
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(position: animation.drive(tween), child: child,);
+          // return FadeTransition(opacity: animation, child: child,);
+        },
+
+      )
+    );
+
+    if(resultado != null){
+      setState(() {
+        print(resultado);
+      });
+    }
+  }
+
+  Future<void> playSound(int id) async {
+    // await _audioCache.play('audio/scan.mp3');
+    try {
+      if(id == 0){
+        await _audioPlayer.play(AssetSource('sounds/error.mp3'));
+      } else {
+        await _audioPlayer.play(AssetSource('sounds/success.mp3'));
+      }
+    } catch (e) {
+      print('Error al reproducir el sonido: $e');
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -34,9 +78,12 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Text(''),
           // backgroundColor: Theme.of(context).colorScheme.tertiary,
           actions: [
-            // IconButton(onPressed: (){
-            //   context.read<AuthBloc>().add(ChangeTokenSapEvent());
-            // }, icon: const Icon(Icons.change_circle),),
+            // IconButton(onPressed: ()async{
+            //   await playSound(0);
+            // }, icon: const Icon(Icons.error),),
+            // IconButton(onPressed: ()async{
+            //   await playSound(1);
+            // }, icon: const Icon(Icons.one_k),),
             IconButton(
                 onPressed: () {
                   // Emite el evento de logout
@@ -93,7 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
               CustomButtonHome(
                 icon: Icons.settings,
                 title: 'CONFIGURACIONES',
-                onPressed: () {},
+                onPressed: () async {
+                  // _abrirAgregarConteo();
+                  
+                },
               )
             ],
           )),

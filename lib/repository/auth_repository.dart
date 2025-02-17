@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:picking_app/models/almacen/almacen_model.dart';
 import 'package:picking_app/models/api_response_model.dart';
 import 'package:picking_app/models/auth/login_model.dart';
 import 'package:picking_app/models/auth/resultado_login_model.dart';
@@ -37,6 +38,17 @@ class AuthRepository {
       }
     }
     return null;
+  }
+
+  Future<List<Almacen>> getAlmacenesUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString('almacenes');
+    if(data == null){return[];}
+    // Decodificamos la cadena JSON
+    final List<dynamic> jsonList = jsonDecode(data);
+    // Convertimos cada elemento del JSON en una instancia de Almacen
+    final almacenes = jsonList.map((item) => Almacen.fromJson(item)).toList();
+    return almacenes;
   }
 
   Future<String?> getToken() async {

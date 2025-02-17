@@ -13,3 +13,23 @@ class ObtenerDetalleConteoPorId extends DetalleConteoEvent {
   @override
   List<Object> get props => [id];
 }
+
+class ActualizarCantidadDetalleConteo extends DetalleConteoEvent {
+  final int idDetalle;
+  final double cantidadAgregada;
+
+  const ActualizarCantidadDetalleConteo({required this.idDetalle, required this.cantidadAgregada });
+
+  @override
+  List<Object> get props => [idDetalle, cantidadAgregada];
+}
+
+class ReiniciarCantidadDetalleConteo extends DetalleConteoEvent {
+  final int idDetalle;
+  final double cantidadAgregada;
+
+  const ReiniciarCantidadDetalleConteo({required this.idDetalle, required this.cantidadAgregada });
+
+  @override
+  List<Object> get props => [idDetalle, cantidadAgregada];
+}

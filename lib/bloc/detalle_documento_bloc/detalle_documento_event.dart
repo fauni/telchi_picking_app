@@ -18,3 +18,13 @@ class ActualizarCantidadPorDetalle extends DetalleDocumentoEvent {
   @override
   List<Object?> get props => [idDetalle, cantidadAgregada];
 }
+
+class ReiniciarCantidadPorDetalle extends DetalleDocumentoEvent {
+  final int idDetalle;
+  final double cantidadAgregada;
+
+  const ReiniciarCantidadPorDetalle({required this.idDetalle, required this.cantidadAgregada });
+
+  @override
+  List<Object?> get props => [idDetalle, cantidadAgregada];
+}

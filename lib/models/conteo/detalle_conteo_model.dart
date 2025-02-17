@@ -18,7 +18,7 @@ class DetalleConteo {
     final double? cantidadDisponible;
     final double? cantidadComprometida;
     final double? cantidadPendienteDeRecibir;
-    final double? cantidadContada;
+    double? cantidadContada;
     final String? estado;
 
     DetalleConteo({
