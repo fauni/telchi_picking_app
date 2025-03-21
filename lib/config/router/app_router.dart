@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:picking_app/bloc/auth_bloc/auth_bloc.dart';
-import 'package:picking_app/bloc/auth_bloc/auth_state.dart';
 import 'package:picking_app/models/almacen/almacen_model.dart';
 import 'package:picking_app/models/conteo/conteo_model.dart';
+import 'package:picking_app/models/traslado/resultado_solicitud_traslado.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/ui/almacen/seleccionar_almacen_screen.dart';
 import 'package:picking_app/ui/auth/login_screen.dart';
@@ -15,8 +14,12 @@ import 'package:picking_app/ui/main/home_screen.dart';
 import 'package:picking_app/ui/main/initial_screen.dart';
 import 'package:picking_app/ui/picking/detalle_orden_venta_screen.dart';
 import 'package:picking_app/ui/picking/tipo_documento_screen.dart';
+import 'package:picking_app/ui/solicitud_traslado/detalle_solicitud_traslado_screen.dart';
+import 'package:picking_app/ui/solicitud_traslado/lista_solicitud_traslado_screen.dart';
 import 'package:picking_app/ui/tipo_documento/buscar_orden_venta_screen.dart';
 import 'package:picking_app/utils/go_router_refresh_notifier.dart';
+
+import '../../bloc/bloc.dart';
 
 
 GoRouter createAppRouter(BuildContext context){
@@ -50,6 +53,12 @@ GoRouter createAppRouter(BuildContext context){
         } 
       ),
       GoRoute(
+        path: '/solicitud-traslado',
+        builder: (context, state) {
+          return const ListaSolicitudTrasladoScreen();
+        }
+      ),
+      GoRoute(
         path: '/conteo',
         builder: (context, state) {
           return const ListarConteoScreen();
@@ -77,6 +86,13 @@ GoRouter createAppRouter(BuildContext context){
           ResultadoOrdenVentaModel data = state.extra as ResultadoOrdenVentaModel;
           final tipoDocumento = state.pathParameters['tipoDocumento'] ?? '';
           return DetalleOrdenVentaScreen(orden: data, tipoDocumento: tipoDocumento,);
+        },
+      ),
+      GoRoute(
+        path: '/detallesolicitudtraslado',
+        builder: (context, state) {
+          SolicitudTraslado data = state.extra as SolicitudTraslado;
+          return DetalleSolicitudTrasladoScreen(solicitud: data);
         },
       ),
       GoRoute(

@@ -35,3 +35,11 @@ export 'package:picking_app/bloc/detalle_conteo_bloc/detalle_conteo_state.dart';
 export 'package:picking_app/bloc/almacen_bloc/almacen_bloc.dart';
 export 'package:picking_app/bloc/almacen_bloc/almacen_event.dart';
 export 'package:picking_app/bloc/almacen_bloc/almacen_state.dart';
+
+export 'package:picking_app/bloc/solicitud_traslado_bloc/solicitud_traslado_bloc.dart';
+export 'package:picking_app/bloc/solicitud_traslado_bloc/solicitud_traslado_event.dart';
+export 'package:picking_app/bloc/solicitud_traslado_bloc/solicitud_traslado_state.dart';
+
+export 'package:picking_app/bloc/detalle_solicitud_traslado_bloc/detalle_solicitud_traslado_bloc.dart';
+export 'package:picking_app/bloc/detalle_solicitud_traslado_bloc/detalle_solicitud_traslado_event.dart';
+export 'package:picking_app/bloc/detalle_solicitud_traslado_bloc/detalle_solicitud_traslado_state.dart';

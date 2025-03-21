@@ -60,10 +60,10 @@ class TipoDocumentoScreen extends StatelessWidget {
                   // Botón ORDEN DE VENTA
                   ButtonTipoDocumento(
                     icon: Icons.swap_horiz,
-                    label: "TRANSFERENCIAS",
+                    label: "SOLICITUD \n DE TRASLADO",
                     color: Theme.of(context).colorScheme.primary,
                     onPressed: () {
-                      context.push('/ordenventa');
+                      context.push('/solicitud-traslado');
                     },
                   )
                 ],

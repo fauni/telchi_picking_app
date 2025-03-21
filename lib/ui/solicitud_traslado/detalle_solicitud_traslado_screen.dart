@@ -8,27 +8,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/models/picking/documento_model.dart';
-import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
+import 'package:picking_app/models/traslado/resultado_solicitud_traslado.dart';
 import 'package:picking_app/ui/widgets/app_bar_widget.dart';
 import 'package:picking_app/ui/widgets/buscador_orden_venta.dart';
 import 'package:picking_app/ui/widgets/generic_dialog_loading.dart';
 import 'package:picking_app/ui/widgets/item_detalle_widget.dart';
-import 'package:picking_app/ui/widgets/item_list_detalle_orden_venta.dart';
+import 'package:picking_app/ui/widgets/item_list_detalle_solicitud_traslado.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 // ignore: must_be_immutable
-class DetalleOrdenVentaScreen extends StatefulWidget {
-  DetalleOrdenVentaScreen(
-      {super.key, required this.orden, required this.tipoDocumento});
-  ResultadoOrdenVentaModel orden;
-  String tipoDocumento;
+class DetalleSolicitudTrasladoScreen extends StatefulWidget {
+  DetalleSolicitudTrasladoScreen({
+    super.key, required this.solicitud});
+  SolicitudTraslado solicitud;
 
   @override
-  State<DetalleOrdenVentaScreen> createState() =>
-      _DetalleOrdenVentaScreenState();
+  State<DetalleSolicitudTrasladoScreen> createState() => _DetalleSolicitudTrasladoScreenState();
 }
 
-class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
+class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTrasladoScreen> {
   TextEditingController controllerSearch = TextEditingController();
 
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -41,7 +39,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   void initState() {
     super.initState();
     validaEstadoConteo();
-    refrescarOrden();
+    refrescarSolicitud();
   }
 
   @override
@@ -51,24 +49,23 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   Future<void> playSound(int id) async {
-    // await _audioCache.play('audio/scan.mp3');
     try {
-      if (id == 0) {
+      if(id == 0){
         await _audioPlayer.play(AssetSource('sounds/error.mp3'));
       } else {
         await _audioPlayer.play(AssetSource('sounds/success.mp3'));
       }
-    } catch (e) {
+    } catch(e){
       print('Error al reproducir el sonido: $e');
     }
   }
 
   void validaEstadoConteo() {
-    if (widget.orden.documento == null) {
+    if (widget.solicitud.documento == null) {
       conteoIniciado = false;
       conteoFinalizado = false;
     } else {
-      if (widget.orden.documento!.estadoConteo == 'F') {
+      if (widget.solicitud.documento!.estadoConteo == 'F') {
         conteoIniciado = false;
         conteoFinalizado = true;
       } else {
@@ -78,9 +75,9 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
     }
   }
 
-  void refrescarOrden() {
-    context.read<DetalleOrdenVentaBloc>().add(ObtenerOrdenVentaByDocNum(
-        widget.orden.docNum.toString(), widget.tipoDocumento));
+  refrescarSolicitud(){
+    context.read<DetalleSolicitudTrasladoBloc>().add(LoadSolicitudTrasladoById(
+      id: widget.solicitud.docEntry!));
   }
 
   void _showBackDialog() {
@@ -122,53 +119,48 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
     // ignore: unused_local_variable
     bool esCompletado = true;
     int totalCompletados = 0;
-    widget.orden.documento?.detalles?.forEach((item) {
+    widget.solicitud.documento?.detalles?.forEach((item) {
       if (item.estado == 'Completado') {
         totalCompletados++;
       }
     });
-    if (widget.orden.documento!.detalles!.length == totalCompletados) {
+    if (widget.solicitud.documento!.detalles!.length == totalCompletados) {
       conteoFinalizado = true;
     } else {
       esCompletado = false;
     }
   }
 
-  List<DocumentLineOrdenVenta> filtrarItemsPorEstado() {
-    if (widget.orden.documentLines == null) {
-      return [];
-    }
+  List<LineSolicitudTraslado> filtrarItemsPorEstado() {
+    if(widget.solicitud.lines == null) return [];
 
-    List<DocumentLineOrdenVenta> itemsFiltrados = widget.orden.documentLines!;
-
-    if (controllerSearch.text.isEmpty) {
+    List<LineSolicitudTraslado> itemsFiltrados = widget.solicitud.lines!;
+    if(controllerSearch.text.isEmpty){
       // Filtrar por estado
-      if (estadoSeleccionado != 'Todos') {
+      if(estadoSeleccionado != 'Todos'){
         itemsFiltrados = itemsFiltrados.where((item) {
-          return item.detalleDocumento!.estado!.toLowerCase() ==
-              estadoSeleccionado.toLowerCase();
+          return item.detalleDocumento!.estado!.toLowerCase() == estadoSeleccionado.toLowerCase();
         }).toList();
       }
       return itemsFiltrados;
     } else {
       // Filtrar por texto ingresado en el buscador
       final textoBusqueda = controllerSearch.text.toLowerCase();
-
       itemsFiltrados = itemsFiltrados.where((item) {
-        return item.itemCode!.toLowerCase().contains(textoBusqueda) ||
-            item.itemDescription!.toLowerCase().contains(textoBusqueda);
+        return item.dscription!.toLowerCase().contains(textoBusqueda) || item.itemCode!.toLowerCase().contains(textoBusqueda);
       }).toList();
       return itemsFiltrados;
     }
   }
 
-  List<DocumentLineOrdenVenta> obtenerDetalleOrdenPorDetalle() {
-    List<DocumentLineOrdenVenta> detalleOrden = [];
+  List<LineSolicitudTraslado> obtenerDetalleOrdenPorDetalle(){
+    List<LineSolicitudTraslado> detalleOrden = [];
     List<DetalleDocumento> detalles = filtrarItemsDetallesPorEstado();
-    for (var d in detalles) {
-      final elemento = widget.orden.documentLines!.firstWhere(
+
+    for(var d in detalles){
+      final elemento = widget.solicitud.lines!.firstWhere(
           (e) => e.itemCode == d.codigoItem,
-          orElse: () => DocumentLineOrdenVenta());
+          orElse: () => LineSolicitudTraslado());
       if (elemento.itemCode != null) {
         detalleOrden.add(elemento);
       }
@@ -177,13 +169,13 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   List<DetalleDocumento> filtrarItemsDetallesPorEstado() {
-    if (widget.orden.documento == null ||
-        widget.orden.documento!.detalles == null) {
+    if (widget.solicitud.documento == null ||
+        widget.solicitud.documento!.detalles == null) {
       return [];
     }
     // Mostrar todos los ítems si el filtro está en "Todos".
     if (estadoSeleccionado == 'Todos') {
-      return widget.orden.documento!.detalles ?? [];
+      return widget.solicitud.documento!.detalles ?? [];
     }
 
     if (estadoSeleccionado == 'Pendientes') {
@@ -199,7 +191,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   List<DetalleDocumento> obtenerDetalleDocumentoPorEstado(String estado) {
-    final detalles = widget.orden.documento?.detalles ?? [];
+    final detalles = widget.solicitud.documento?.detalles ?? [];
     List<DetalleDocumento> detallesFiltrados = [];
 
     for (var detalle in detalles) {
@@ -227,26 +219,23 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
         backgroundColor: const Color.fromRGBO(
             247, 247, 247, 1), //backgroundColor: Colors.blue[50],
         appBar: AppBarWidget(
-          titulo: '${widget.orden.docNum}',
+          titulo: '${widget.solicitud.docNum}',
           icon: Icons.refresh,
           onPush: () {
-            refrescarOrden();
+            refrescarSolicitud();
           },
         ),
-        body: BlocConsumer<DetalleOrdenVentaBloc, DetalleOrdenVentaState>(
+        body: BlocConsumer<DetalleSolicitudTrasladoBloc, DetalleSolicitudTrasladoState>(
           listener: (context, state) {
-            if (state is OrdenVentaPorDocNumCargada) {
-              setState(() {
-                widget.orden = state.orden;
-                validaEstadoConteo();
-              });
+            if(state is DetalleSolicitudTrasladoByIdLoaded){
+              widget.solicitud = state.solicitudTraslado;
+              validaEstadoConteo();
             }
           },
           builder: (context, state) {
-            if (state is DetalleOrdenVentaCargando) {
-              // Mostrar un indicador de carga mientras se carga la orden
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is OrdenVentaPorDocNumCargada) {
+            if(state is DetalleSolicitudTrasladoByIdLoading){
+              return const Center(child: CircularProgressIndicator(),);
+            } else if (state is DetalleSolicitudTrasladoByIdLoaded){
               return Column(
                 children: [
                   Expanded(
@@ -264,26 +253,27 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ItemDetalleWidget(
+                              const ItemDetalleWidget(
                                   titulo: 'Tipo de Documento',
-                                  valor: widget.tipoDocumento == 'orden_venta'
-                                      ? 'Orden de Venta'
-                                      : widget.tipoDocumento == 'factura'
-                                          ? 'Factura de Venta'
-                                          : 'Factura de Compra'),
+                                  valor: 'Solicitud de Traslado'),
                               ItemDetalleWidget(
                                 titulo: 'Número de Documento',
-                                valor: widget.orden.docNum.toString(),
+                                valor: widget.solicitud.docNum.toString(),
                               ),
-                              ItemDetalleColumnWidget(
-                                titulo: 'Proveedor ',
-                                valor:
-                                    '${widget.orden.cardCode} - ${widget.orden.cardName}',
+                              ItemDetalleWidget(
+                                titulo: 'De Almacén ',
+                                valor: widget.solicitud.filler!,
+                              ),
+                              ItemDetalleWidget(
+                                titulo: 'A Almacén ',
+                                valor: widget.solicitud.toWhsCode!,
                               ),
                               ItemDetalleWidget(
                                   titulo: 'Fecha del Documento',
-                                  valor: formatDate(widget.orden.docDate!,
-                                      [dd, '-', mm, '-', yyyy])),
+                                  valor: formatDate(widget.solicitud.docDate!,
+                                    [dd, '-', mm, '-', yyyy]
+                                  )
+                              ),
                             ],
                           ),
                         ),
@@ -297,17 +287,17 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 foregroundColor: Colors.white,
                                 onPressed: () async {
                                   final detalleEncontrado =
-                                      widget.orden.documentLines!.firstWhere(
+                                      widget.solicitud.lines!.firstWhere(
                                           (item) =>
                                               item.itemCode ==
                                               controllerSearch.text,
                                           orElse: () =>
-                                              DocumentLineOrdenVenta());
+                                              LineSolicitudTraslado());
                                   DetalleDocumento detalleConteoEncontrado =
                                       DetalleDocumento();
-                                  if (widget.orden.documento != null) {
+                                  if (widget.solicitud.documento != null) {
                                     detalleConteoEncontrado = widget
-                                        .orden.documento!.detalles!
+                                        .solicitud.documento!.detalles!
                                         .firstWhere(
                                             (item) =>
                                                 item.codigoItem ==
@@ -370,16 +360,16 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                     },
                                     onSubmitted: (value) async {
                                       final detalleEncontrado = widget
-                                          .orden.documentLines!
+                                          .solicitud.lines!
                                           .firstWhere(
                                               (item) => item.itemCode == value,
                                               orElse: () =>
-                                                  DocumentLineOrdenVenta());
+                                                  LineSolicitudTraslado());
                                       DetalleDocumento detalleConteoEncontrado =
                                           DetalleDocumento();
-                                      if (widget.orden.documento != null) {
+                                      if (widget.solicitud.documento != null) {
                                         detalleConteoEncontrado = widget
-                                            .orden.documento!.detalles!
+                                            .solicitud.documento!.detalles!
                                             .firstWhere(
                                                 (item) =>
                                                     item.codigoItem == value,
@@ -460,15 +450,15 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                           // Si el resultado del escaneo no es nulo
                                           if (res != null && res.isNotEmpty) {
                                             final detalleEncontrado = widget
-                                                .orden.documentLines!
+                                                .solicitud.lines!
                                                 .firstWhere(
-                                              (item) => item.barCode == res,
+                                              (item) => item.codeBars == res,
                                               orElse: () =>
-                                                  DocumentLineOrdenVenta(),
+                                                  LineSolicitudTraslado(),
                                             );
 
                                             final detalleConteoEncontrado =
-                                                widget.orden.documento?.detalles
+                                                widget.solicitud.documento?.detalles
                                                     ?.firstWhere(
                                               (item) =>
                                                   item.codigoBarras == res,
@@ -581,18 +571,18 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         Expanded(
                             child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ListaItemsDetalleOrdenVenta(
+                          child: ListaItemsDetalleSolicitudTraslado(
                             items: filtrarItemsPorEstado(),
                             onItemTap: (p0) async {
                               final detalleEncontrado = widget
-                                  .orden.documentLines!
+                                  .solicitud.lines!
                                   .firstWhere((item) => item.itemCode == p0,
-                                      orElse: () => DocumentLineOrdenVenta());
+                                      orElse: () => LineSolicitudTraslado());
                               DetalleDocumento detalleConteoEncontrado =
                                   DetalleDocumento();
-                              if (widget.orden.documento != null) {
+                              if (widget.solicitud.documento != null) {
                                 detalleConteoEncontrado = widget
-                                    .orden.documento!.detalles!
+                                    .solicitud.documento!.detalles!
                                     .firstWhere((item) => item.codigoItem == p0,
                                         orElse: () => DetalleDocumento());
                               }
@@ -650,7 +640,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           GenericDialogLoading.close();
                           setState(() {
                             conteoIniciado = true;
-                            refrescarOrden();
+                            refrescarSolicitud();
                           });
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
@@ -669,6 +659,9 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         } else if (state is DocumentFailure) {
                           // Cerrar el dialogo y mostrar el error
                           GenericDialogLoading.close();
+                          if(state.error.contains("Invalid session")){
+                            context.go('/login');
+                          }
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text('Error: ${state.error}'),
                             backgroundColor: Colors.red,
@@ -698,12 +691,12 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           : conteoFinalizado
                               ? ElevatedButton.icon(
                                   onPressed: () async {
+                                    // TODO: Aqui se guarda el conteo en SAP revisar
                                     context.read<DocumentoBloc>().add(
                                           SaveConteoForDocNumToSap(
-                                              docNum: widget.orden.docNum
+                                              docNum: widget.solicitud.docNum
                                                   .toString(),
-                                              tipoDocumento:
-                                                  widget.tipoDocumento),
+                                              tipoDocumento: 'solicitud_traslado'),
                                         );
                                   },
                                   label: const Text('ENVIAR CONTEO A SAP'),
@@ -725,12 +718,11 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                 )
                               : ElevatedButton.icon(
                                   onPressed: () async {
+                                    // TODO: Aqui creamos el documento al iniciar conteo
                                     context.read<DocumentoBloc>().add(
-                                        CreateDocumentFromSAP(
-                                            docNum:
-                                                widget.orden.docNum.toString(),
-                                            tipoDocumento:
-                                                widget.tipoDocumento));
+                                        CreateDocumentoSolicitudFromSAP(
+                                          docEntry: widget.solicitud.docEntry.toString()
+                                        ));
                                   },
                                   label: const Text('INICIAR CONTEO'),
                                   icon: const Icon(
@@ -752,12 +744,13 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                   )
                 ],
               );
-            } else if (state is DetalleOrdenVentaError) {
-              // Mostrar un mensaje de error si ocurre un problema
-              return Center(child: Text('Error: ${state.mensaje}'));
+            } else if(state is DetalleSolicitudTrasladoByIdError){
+              return Center(
+                child: Text(state.message),
+              );
             } else {
-              // Estado inicial o cualquier otro estado
-              return const Center(child: Text('Cargando...'));
+              return const Center(child: CircularProgressIndicator(),);
+
             }
           },
         ),
@@ -765,7 +758,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
     );
   }
 
-  void _mostrarFiltrosEstado(BuildContext context) {
+  void _mostrarFiltrosEstado(BuildContext context){
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -805,7 +798,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
   }
 
   Future<void> _mostrarDialogoCantidad(BuildContext context,
-      DocumentLineOrdenVenta detalle, DetalleDocumento detalleConteo) async {
+      LineSolicitudTraslado detalle, DetalleDocumento detalleConteo) async {
     final TextEditingController cantidadController = TextEditingController();
     cantidadController.text = '1';
     await showDialog(
@@ -823,7 +816,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
               children: [
                 // Text(detalle.itemCode.toString()),
                 Text(
-                  detalle.itemDescription!,
+                  detalle.dscription!,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Row(
@@ -863,7 +856,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                         keyboardType: TextInputType.number, // solo números
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+(\.\d{0,2})?$')),
+                              RegExp(r'^\d+(\.\d{0,4})?$')),
                         ],
                         decoration: const InputDecoration(
                           labelText: 'Ingresar cantidad:',
@@ -912,8 +905,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BlocConsumer<ReiniciaDetalleDocumentoBloc,
-                    DetalleDocumentoState>(
+                BlocConsumer<ReiniciaDetalleDocumentoBloc, DetalleDocumentoState>(
                   listener: (context, state) {
                     if(state is DetalleDocumentoReiniciado){
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -922,7 +914,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           backgroundColor: Colors.green,
                         ),
                       );
-                      refrescarOrden();
+                      refrescarSolicitud();
                     }
                   },
                   builder: (context, state) {
@@ -976,7 +968,7 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                             // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
                           } else if (state is DetalleDocumentoSuccess) {
                             Navigator.of(context).pop(); // Cerrar el diálogo
-                            refrescarOrden();
+                            refrescarSolicitud();
                           } else if (state is DetalleDocumentoError) {
                             // Muestra un mensaje de error
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -1029,11 +1021,11 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                                     }
                                     // Aquí puedes realizar la lógica para agregar la cantidad
                                     context.read<DetalleDocumentoBloc>().add(
-                                          ActualizarCantidadPorDetalle(
-                                              idDetalle:
-                                                  detalleConteo.idDetalle!,
-                                              cantidadAgregada: cantidad),
-                                        );
+                                      ActualizarCantidadPorDetalle(
+                                        idDetalle: detalleConteo.idDetalle!,
+                                        cantidadAgregada: cantidad
+                                      ),
+                                    );
                                   },
                                   label: const Text('Confirmar'),
                                 );
@@ -1052,29 +1044,29 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
 }
 
 // ignore: must_be_immutable
-class ListaItemsDetalleOrdenVenta extends StatefulWidget {
-  ListaItemsDetalleOrdenVenta({
+class ListaItemsDetalleSolicitudTraslado extends StatefulWidget {
+  ListaItemsDetalleSolicitudTraslado({
     super.key,
     required this.items,
     required this.onItemTap,
   });
 
-  List<DocumentLineOrdenVenta> items;
+  List<LineSolicitudTraslado> items;
   final Function(String) onItemTap;
 
   @override
-  State<ListaItemsDetalleOrdenVenta> createState() =>
-      _ListaItemsDetalleOrdenVentaState();
+  State<ListaItemsDetalleSolicitudTraslado> createState() =>
+      _ListaItemsDetalleSolicitudTrasladoState();
 }
 
-class _ListaItemsDetalleOrdenVentaState
-    extends State<ListaItemsDetalleOrdenVenta> {
+class _ListaItemsDetalleSolicitudTrasladoState
+    extends State<ListaItemsDetalleSolicitudTraslado> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          DocumentLineOrdenVenta item = widget.items[index];
+          LineSolicitudTraslado item = widget.items[index];
           return Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
@@ -1082,7 +1074,7 @@ class _ListaItemsDetalleOrdenVentaState
                   color: Colors
                       .white, // color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(10)),
-              child: ItemListDetalleOrdenVenta(
+              child: ItemListDetalleSolicitudTraslado(
                 detalle: item,
                 onTap: () => widget.onItemTap(item.itemCode!),
               ));

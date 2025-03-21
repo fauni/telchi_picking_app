@@ -107,13 +107,13 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(
                 height: 20,
               ),
-              CustomButtonHome(
-                icon: Icons.show_chart,
-                title: 'DASHBOARD',
-                onPressed: () {
+              // CustomButtonHome(
+              //   icon: Icons.show_chart,
+              //   title: 'DASHBOARD',
+              //   onPressed: () {
                   
-                },
-              ),
+              //   },
+              // ),
               const SizedBox(
                 height: 10,
               ),
@@ -134,17 +134,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   context.push('/conteo');
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              CustomButtonHome(
-                icon: Icons.settings,
-                title: 'CONFIGURACIONES',
-                onPressed: () async {
-                  // _abrirAgregarConteo();
+              // const SizedBox(
+              //   height: 10,
+              // ),
+              // CustomButtonHome(
+              //   icon: Icons.settings,
+              //   title: 'CONFIGURACIONES',
+              //   onPressed: () async {
+              //     // _abrirAgregarConteo();
                   
-                },
-              )
+              //   },
+              // )
             ],
           )),
     );

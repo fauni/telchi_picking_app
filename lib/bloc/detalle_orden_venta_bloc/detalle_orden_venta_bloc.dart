@@ -21,6 +21,7 @@ class DetalleOrdenVentaBloc extends Bloc<DetalleOrdenVentaEvent, DetalleOrdenVen
     emit(DetalleOrdenVentaCargando()); // Emitir estado de carga
 
     try {
+      // TODO: Aqui agregar el método para completar los nuevos items agregados en el sap
       final response = event.tipoDocumento == 'orden_venta' 
         ? await repository.obtenerOrdenVentaPorDocNum(event.docNum, event.tipoDocumento)
         : event.tipoDocumento == 'factura' ? await facturaRepository.obtenerFacturaPorDocNum(event.docNum, event.tipoDocumento)

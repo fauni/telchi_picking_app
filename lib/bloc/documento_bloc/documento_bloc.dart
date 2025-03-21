@@ -7,6 +7,7 @@ class DocumentoBloc extends Bloc<DocumentoEvent, DocumentoState> {
   
   DocumentoBloc(this.repository): super(DocumentInitial()){
     on<CreateDocumentFromSAP>(_onCrearDocumentoFromSAP);
+    on<CreateDocumentoSolicitudFromSAP>(_onCrearDocumentoSolicitudFromSAP);
     on<SaveConteoForDocNumToSap>(_onGuardaConteoEnSapPorDocNum);
   }
 
@@ -29,6 +30,22 @@ class DocumentoBloc extends Bloc<DocumentoEvent, DocumentoState> {
     } catch(e) {
       emit(DocumentFailure("Error al crear el documento: $e"));
     }
+  }
+
+  Future<void> _onCrearDocumentoSolicitudFromSAP(CreateDocumentoSolicitudFromSAP event, Emitter<DocumentoState> emit) async {
+    emit(DocumentLoading());
+    try {
+      final response = await repository.crearDocumentoSolicitudDesdeSap(event.docEntry);
+      if(response.isSuccessful && response.resultado != null) {
+        emit(DocumentSuccess(response.resultado!.documentId));
+      } else {
+        final errorMessage = response.errorMessages?.join(', ') ?? 'Error desconocido';
+        emit(DocumentFailure(errorMessage));
+      }
+    } catch(e) {
+      emit(DocumentFailure("Error al crear el documento de solicitud: $e"));
+    }
+
   }
   
   Future<void> _onGuardaConteoEnSapPorDocNum(SaveConteoForDocNumToSap event, Emitter<DocumentoState> emit) async {

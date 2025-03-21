@@ -15,6 +15,15 @@ class CreateDocumentFromSAP extends DocumentoEvent {
   List<Object?> get props => [docNum, tipoDocumento];
 }
 
+class CreateDocumentoSolicitudFromSAP extends DocumentoEvent {
+  final String docEntry;
+
+  CreateDocumentoSolicitudFromSAP({required this.docEntry});
+
+  @override
+  List<Object?> get props => [docEntry];
+}
+
 class SaveConteoForDocNumToSap extends DocumentoEvent {
   final String docNum;
   final String tipoDocumento;

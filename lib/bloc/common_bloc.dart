@@ -9,6 +9,7 @@ import 'package:picking_app/repository/documento_repository.dart';
 import 'package:picking_app/repository/factura_compra_repository.dart';
 import 'package:picking_app/repository/factura_repository.dart';
 import 'package:picking_app/repository/orden_venta_repository.dart';
+import 'package:picking_app/repository/solicitud_traslado_repository.dart';
 
 class CommonBloc {
   // Instancia del AuthBloc
@@ -22,6 +23,8 @@ class CommonBloc {
   static final DetalleConteoBloc detalleConteoBloc = DetalleConteoBloc(DetalleConteoRepository());
   static final ReiniciarDetalleConteoBloc reiniciarDetalleConteoBloc = ReiniciarDetalleConteoBloc(DetalleConteoRepository());
   static final AlmacenBloc almacenBloc = AlmacenBloc(AuthRepository());
+  static final SolicitudTrasladoBloc solicitudTrasladoBloc = SolicitudTrasladoBloc(SolicitudTrasladoRepository());
+  static final DetalleSolicitudTrasladoBloc detalleSolicitudTrasladoBloc = DetalleSolicitudTrasladoBloc(SolicitudTrasladoRepository());
 
 
   // Lista de BlocProviders para proveer a toda la aplicación
@@ -35,7 +38,9 @@ class CommonBloc {
     BlocProvider<ConteoBloc>(create: (context)=>conteoBloc),
     BlocProvider<DetalleConteoBloc>(create: (context) => detalleConteoBloc,),
     BlocProvider<ReiniciarDetalleConteoBloc>(create: (context) => reiniciarDetalleConteoBloc),
-    BlocProvider<AlmacenBloc>(create: (context) => almacenBloc)
+    BlocProvider<AlmacenBloc>(create: (context) => almacenBloc),
+    BlocProvider<SolicitudTrasladoBloc>(create: (context) => solicitudTrasladoBloc),
+    BlocProvider<DetalleSolicitudTrasladoBloc>(create: (context) => detalleSolicitudTrasladoBloc)
   ];
 
   // Método para cerrar el bloc cuando no se necesite más
@@ -50,6 +55,8 @@ class CommonBloc {
     detalleConteoBloc.close();
     reiniciarDetalleConteoBloc.close();
     almacenBloc.close();
+    solicitudTrasladoBloc.close();
+    detalleSolicitudTrasladoBloc.close();
   }
   
   static final CommonBloc _instance = CommonBloc._internal();

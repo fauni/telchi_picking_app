@@ -122,7 +122,7 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
               },
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: BorderSide.strokeAlignCenter),
             child: ElevatedButton.icon(
               onPressed: () {
                 controllerSearch.text.isNotEmpty
@@ -142,6 +142,7 @@ class _BuscarOrdenVentaScreenState extends State<BuscarOrdenVentaScreen>
               icon: const Icon(
                 Icons.search,
                 size: 30,
+                color: Colors.white,
               ),
             ),
           ),
@@ -225,32 +226,33 @@ class ListaDocumentosOrdenVenta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          ResultadoOrdenVentaModel orden = ordenes[index];
-          final estadoSap =
-              orden.documento == null ? 'N' : orden.documento!.actualizadoSap;
-          return Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
-              decoration: BoxDecoration(
-                  color: estadoSap == 'Y'
-                      ? Colors.blue[50]
-                      : Colors.white, // color: Theme.of(context).colorScheme.,
-                  borderRadius: BorderRadius.circular(10)),
-              child: ItemListOrdenVenta(
-                orden: orden,
-                status: 'Pendiente',
-                onOpen: () async {
-                  final result = await context.push('/detalleordenventa/$tipoDocumento', extra: orden);
-                  if (result == true) {
-                    // ignore: use_build_context_synchronously
-                    BlocProvider.of<OrdenVentaBloc>(context)
-                        .add(ObtenerOrdenesVenta(tipoDocumento));
-                    // tabController.index = 4;
-                  }
-                },
-              ));
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        ResultadoOrdenVentaModel orden = ordenes[index];
+        final estadoSap = orden.documento == null ? 'N' : orden.documento!.actualizadoSap;
+        return Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
+            decoration: BoxDecoration(
+                color: estadoSap == 'Y'
+                    ? Colors.blue[50]
+                    : Colors.white, // color: Theme.of(context).colorScheme.,
+                borderRadius: BorderRadius.circular(10),
+            ),
+            child: ItemListOrdenVenta(
+              orden: orden,
+              status: 'Pendiente',
+              onOpen: () async {
+                final result = await context.push('/detalleordenventa/$tipoDocumento', extra: orden);
+                if (result == true) {
+                  // ignore: use_build_context_synchronously
+                  BlocProvider.of<OrdenVentaBloc>(context)
+                      .add(ObtenerOrdenesVenta(tipoDocumento));
+                  // tabController.index = 4;
+                }
+              },
+            ),
+          );
         },
         separatorBuilder: (context, index) {
           return const SizedBox(
