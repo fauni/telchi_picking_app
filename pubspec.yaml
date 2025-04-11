@@ -20,6 +20,8 @@ dependencies:
     sdk: flutter
   go_router: ^14.4.1
   http: ^1.2.2
+  open_file: ^3.5.10
+  path_provider: ^2.1.5
   shared_preferences: ^2.3.2
   simple_barcode_scanner: ^0.2.2
 
@@ -35,6 +37,9 @@ flutter:
     - assets/logos/
     - assets/sounds/error.mp3
     - assets/sounds/success.mp3
+    - assets/sounds/correcto.mp3
+    - assets/sounds/incorrecto.mp3
+    - assets/sounds/complete.mp3
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

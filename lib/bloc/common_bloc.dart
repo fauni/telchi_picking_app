@@ -3,18 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:picking_app/bloc/bloc.dart';
 import 'package:picking_app/repository/auth_repository.dart';
 import 'package:picking_app/repository/conteo_repository.dart';
+import 'package:picking_app/repository/delivery_repository.dart';
 import 'package:picking_app/repository/detalle_conteo_repository.dart';
 import 'package:picking_app/repository/detalle_documento_repository.dart';
 import 'package:picking_app/repository/documento_repository.dart';
 import 'package:picking_app/repository/factura_compra_repository.dart';
 import 'package:picking_app/repository/factura_repository.dart';
+import 'package:picking_app/repository/orden_compra_repository.dart';
 import 'package:picking_app/repository/orden_venta_repository.dart';
+import 'package:picking_app/repository/reporte_repository.dart';
 import 'package:picking_app/repository/solicitud_traslado_repository.dart';
 
 class CommonBloc {
   // Instancia del AuthBloc
   static final AuthBloc authBloc = AuthBloc(AuthRepository())..add(CheckAuthEvent());
-  static final OrdenVentaBloc ordenVentaBloc = OrdenVentaBloc(OrdenVentaRepository(), FacturaRepository(), FacturaCompraRepository());
+  static final OrdenVentaBloc ordenVentaBloc = OrdenVentaBloc(OrdenVentaRepository(), FacturaRepository(), FacturaCompraRepository(), DeliveryRepository(), OrdenCompraRepository());
   static final DetalleOrdenVentaBloc detalleOrdenVentaBloc = DetalleOrdenVentaBloc(OrdenVentaRepository(), FacturaRepository(), FacturaCompraRepository());
   static final DocumentoBloc documentoBloc = DocumentoBloc(DocumentoRepository());
   static final DetalleDocumentoBloc detalleDocumentoBloc = DetalleDocumentoBloc(detalleDocumentoRepository: DetalleDocumentoRepository());
@@ -25,6 +28,7 @@ class CommonBloc {
   static final AlmacenBloc almacenBloc = AlmacenBloc(AuthRepository());
   static final SolicitudTrasladoBloc solicitudTrasladoBloc = SolicitudTrasladoBloc(SolicitudTrasladoRepository());
   static final DetalleSolicitudTrasladoBloc detalleSolicitudTrasladoBloc = DetalleSolicitudTrasladoBloc(SolicitudTrasladoRepository());
+  static final ReporteBloc reporteBloc = ReporteBloc(reporteRepository: ReporteRepository());
 
 
   // Lista de BlocProviders para proveer a toda la aplicación
@@ -40,7 +44,8 @@ class CommonBloc {
     BlocProvider<ReiniciarDetalleConteoBloc>(create: (context) => reiniciarDetalleConteoBloc),
     BlocProvider<AlmacenBloc>(create: (context) => almacenBloc),
     BlocProvider<SolicitudTrasladoBloc>(create: (context) => solicitudTrasladoBloc),
-    BlocProvider<DetalleSolicitudTrasladoBloc>(create: (context) => detalleSolicitudTrasladoBloc)
+    BlocProvider<DetalleSolicitudTrasladoBloc>(create: (context) => detalleSolicitudTrasladoBloc),
+    BlocProvider<ReporteBloc>(create: (context) => reporteBloc),
   ];
 
   // Método para cerrar el bloc cuando no se necesite más
@@ -57,6 +62,7 @@ class CommonBloc {
     almacenBloc.close();
     solicitudTrasladoBloc.close();
     detalleSolicitudTrasladoBloc.close();
+    reporteBloc.close();
   }
   
   static final CommonBloc _instance = CommonBloc._internal();

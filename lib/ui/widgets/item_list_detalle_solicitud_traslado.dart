@@ -30,16 +30,7 @@ class _ItemListDetalleSolicitudTrasladoState extends State<ItemListDetalleSolici
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            Container(
-              width: 5,
-              height: 100,
-              color: widget.detalle.detalleDocumento == null ? Colors.grey
-              : widget.detalle.detalleDocumento!.estado == 'Completado' 
-                ? Colors.green
-                : widget.detalle.detalleDocumento!.estado == 'Pendiente'  
-                  ? Colors.grey 
-                  : widget.detalle.detalleDocumento!.estado == 'En Progreso' ? Colors.yellow : Colors.grey,
-            ),
+            buildEstadoContainer(widget.detalle),
             const SizedBox(width: 10,),
             Expanded(
               child: Column(
@@ -89,6 +80,33 @@ class _ItemListDetalleSolicitudTrasladoState extends State<ItemListDetalleSolici
           ],
         )
       ),
+    );
+  }
+
+  Widget buildEstadoContainer(LineSolicitudTraslado  detalle) {
+    Color containerColor = Colors.grey; // Valor predeterminado
+
+    if (detalle.detalleDocumento != null) {
+      String estado = detalle.detalleDocumento!.estado!;
+      double cantidadEsperada = detalle.detalleDocumento!.cantidadEsperada!;
+      double cantidadContada = detalle.detalleDocumento!.cantidadContada!;
+
+      if (estado == 'Completado') {
+        if (cantidadEsperada != null && cantidadContada != null && cantidadEsperada > cantidadContada) {
+          containerColor = Colors.red;
+        } else {
+          containerColor = Colors.green;
+        }
+      } else if (estado == 'Pendiente') {
+        containerColor = Colors.grey;
+      } else if (estado == 'En Progreso') {
+        containerColor = Colors.yellow;
+      }
+    }
+    return Container(
+      width: 5,
+      height: 70,
+      color: containerColor,
     );
   }
 }

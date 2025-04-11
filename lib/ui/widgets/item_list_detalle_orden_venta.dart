@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picking_app/models/picking/documento_model.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 
 // ignore: must_be_immutable
@@ -22,6 +23,7 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -30,16 +32,7 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            Container(
-              width: 5,
-              height: 70,
-              color: widget.detalle.detalleDocumento == null ? Colors.grey
-              : widget.detalle.detalleDocumento!.estado == 'Completado' 
-                ? Colors.green
-                : widget.detalle.detalleDocumento!.estado == 'Pendiente'  
-                  ? Colors.grey 
-                  : widget.detalle.detalleDocumento!.estado == 'En Progreso' ? Colors.yellow : Colors.grey,
-            ),
+            buildEstadoContainer(widget.detalle),
             const SizedBox(width: 10,),
             Expanded(
               child: Column(
@@ -75,6 +68,33 @@ class _ItemListDetalleOrdenVentaState extends State<ItemListDetalleOrdenVenta> {
           ],
         )
       ),
+    );
+  }
+
+  Widget buildEstadoContainer(DocumentLineOrdenVenta detalle) {
+    Color containerColor = Colors.grey; // Valor predeterminado
+
+    if (detalle.detalleDocumento != null) {
+      String estado = detalle.detalleDocumento!.estado!;
+      double cantidadEsperada = detalle.detalleDocumento!.cantidadEsperada!;
+      double cantidadContada = detalle.detalleDocumento!.cantidadContada!;
+
+      if (estado == 'Completado') {
+        if (cantidadEsperada != null && cantidadContada != null && cantidadEsperada > cantidadContada) {
+          containerColor = Colors.red;
+        } else {
+          containerColor = Colors.green;
+        }
+      } else if (estado == 'Pendiente') {
+        containerColor = Colors.grey;
+      } else if (estado == 'En Progreso') {
+        containerColor = Colors.yellow;
+      }
+    }
+    return Container(
+      width: 5,
+      height: 70,
+      color: containerColor,
     );
   }
 }

@@ -18,7 +18,8 @@ class DetalleDocumentoBloc extends Bloc<DetalleDocumentoEvent, DetalleDocumentoS
       try {
         final response = await detalleDocumentoRepository.actualizarCantidad(
           idDetalle: event.idDetalle, 
-          cantidadAgregada: event.cantidadAgregada
+          cantidadAgregada: event.cantidadAgregada,
+          fechaVencimiento: event.fechaVencimiento
         );
         if(response.isSuccessful){
           emit(DetalleDocumentoSuccess(

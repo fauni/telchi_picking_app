@@ -49,16 +49,20 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
   }
 
   Future<void> playSound(int id) async {
+    // await _audioCache.play('audio/scan.mp3');
     try {
-      if(id == 0){
-        await _audioPlayer.play(AssetSource('sounds/error.mp3'));
+      if (id == 0) {
+        await _audioPlayer.play(AssetSource('sounds/incorrecto.mp3'));
+      } else if(id == 1){
+        await _audioPlayer.play(AssetSource('sounds/correcto.mp3'));
       } else {
-        await _audioPlayer.play(AssetSource('sounds/success.mp3'));
+        await _audioPlayer.play(AssetSource('sounds/complete.mp3'));
       }
-    } catch(e){
+    } catch (e) {
       print('Error al reproducir el sonido: $e');
     }
   }
+
 
   void validaEstadoConteo() {
     if (widget.solicitud.documento == null) {
@@ -588,8 +592,10 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                               }
 
                               if (detalleEncontrado.itemCode != null) {
-                                // Mostrar el diálogo si se encuentra el detalle
-                                if (conteoIniciado != true) {
+                                if (conteoIniciado == true || detalleEncontrado.detalleDocumento?.estado == 'Completado') {
+                                  final result = await _mostrarDialogoCantidad(context, detalleEncontrado, detalleConteoEncontrado);
+                                  setState(() {});
+                                } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text(
@@ -599,16 +605,6 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                                       backgroundColor: Colors.blue,
                                     ),
                                   );
-                                } else {
-                                  // ignore: unused_local_variable
-                                  final result = await _mostrarDialogoCantidad(
-                                      context,
-                                      detalleEncontrado,
-                                      detalleConteoEncontrado);
-                                  setState(() {
-                                    // print(result);
-                                    // estadoSeleccionado = 'En Progreso';
-                                  });
                                 }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -797,9 +793,9 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
     );
   }
 
-  Future<void> _mostrarDialogoCantidad(BuildContext context,
-      LineSolicitudTraslado detalle, DetalleDocumento detalleConteo) async {
+  Future<void> _mostrarDialogoCantidad(BuildContext context, LineSolicitudTraslado detalle, DetalleDocumento detalleConteo) async {
     final TextEditingController cantidadController = TextEditingController();
+    final TextEditingController fechaVencimientoController = TextEditingController();
     cantidadController.text = '1';
     await showDialog(
       context: context,
@@ -809,7 +805,7 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
             children: [Text(detalle.itemCode.toString()), const Divider()],
           ),
           content: SizedBox(
-            height: 200,
+            height: 250,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -848,48 +844,78 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                     // Text((detalleConteo.cantidadContada!.toInt()).toString()),
                   ],
                 ),
-                Row(
+                Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: cantidadController,
-                        keyboardType: TextInputType.number, // solo números
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+(\.\d{0,4})?$')),
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: 'Ingresar cantidad:',
-                          border: OutlineInputBorder(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: cantidadController,
+                            keyboardType: TextInputType.number, // solo números
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+(\.\d{0,4})?$')),
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'Ingresar cantidad:',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
                         ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        FloatingActionButton.small(
+                          backgroundColor: Colors.green,
+                          onPressed: () {
+                            final valor = cantidadController.text;
+                            cantidadController.text =
+                                (int.parse(valor) + 1).toString();
+                          },
+                          child: const Icon(Icons.add),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        FloatingActionButton.small(
+                          backgroundColor: Colors.red,
+                          onPressed: () {
+                            final valor = cantidadController.text;
+                            if (int.parse(valor) > 0) {
+                              cantidadController.text =
+                                  (int.parse(valor) - 1).toString();
+                            }
+                          },
+                          child: const Icon(Icons.remove),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10,),
+                    // Agregarmos un input para seleccionar fecha
+                    TextFormField(
+                      controller: fechaVencimientoController,
+                      decoration: const InputDecoration(
+                        labelText: 'Fecha de vencimiento',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.calendar_today)
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    FloatingActionButton.small(
-                      backgroundColor: Colors.green,
-                      onPressed: () {
-                        final valor = cantidadController.text;
-                        cantidadController.text =
-                            (int.parse(valor) + 1).toString();
-                      },
-                      child: const Icon(Icons.add),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    FloatingActionButton.small(
-                      backgroundColor: Colors.red,
-                      onPressed: () {
-                        final valor = cantidadController.text;
-                        if (int.parse(valor) > 0) {
-                          cantidadController.text =
-                              (int.parse(valor) - 1).toString();
+                      readOnly: true,
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2030, 12, 31),
+                          locale: const Locale("es", "ES"),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            fechaVencimientoController.text = "${picked.toLocal()}".split(' ')[0];
+                          });
+                          // fechaVencimientoController.text = DateFormat('yyyy-MM-dd').format(picked); // Formatea la fecha
                         }
                       },
-                      child: const Icon(Icons.remove),
-                    ),
+                    )
                   ],
                 ),
                 detalle.quantity! > detalleConteo.cantidadContada!
@@ -967,6 +993,9 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                           if (state is DetalleDocumentoLoading) {
                             // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
                           } else if (state is DetalleDocumentoSuccess) {
+                            if(detalle.quantity == (double.tryParse(cantidadController.text)! + detalleConteo.cantidadContada!)) {
+                              playSound(2);
+                            }
                             Navigator.of(context).pop(); // Cerrar el diálogo
                             refrescarSolicitud();
                           } else if (state is DetalleDocumentoError) {
@@ -1019,11 +1048,18 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                                       );
                                       return;
                                     }
+
+                                    if(fechaVencimientoController.text.isEmpty){
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor seleccione una fecha de vencimiento'), backgroundColor: Colors.red,));
+                                      return;
+                                    }
+
                                     // Aquí puedes realizar la lógica para agregar la cantidad
                                     context.read<DetalleDocumentoBloc>().add(
                                       ActualizarCantidadPorDetalle(
                                         idDetalle: detalleConteo.idDetalle!,
-                                        cantidadAgregada: cantidad
+                                        cantidadAgregada: cantidad,
+                                        fechaVencimiento: fechaVencimientoController.text
                                       ),
                                     );
                                   },

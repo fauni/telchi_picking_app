@@ -6,12 +6,13 @@ import 'package:picking_app/models/api_reponse_list_model.dart';
 import 'package:picking_app/models/api_response_model.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 import 'package:picking_app/repository/auth_repository.dart';
-class FacturaCompraRepository {
+class DeliveryRepository {
   final String _baseUrl = Environment.UrlApi;
   final AuthRepository _authRepository = AuthRepository();
 
-  Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerFacturaCompra() async {
-    final url = Uri.parse('$_baseUrl/purchaseorder?tipoDocumento=factura_compra');
+  // #region Métodos para obtener las ORDEN de compra
+  Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerEntrega() async {
+    final url = Uri.parse('$_baseUrl/delivery?tipoDocumento=entregas');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -57,8 +58,8 @@ class FacturaCompraRepository {
     }
   }
 
-  Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerFacturaBySearch(String search) async {
-    final url = Uri.parse('$_baseUrl/purchaseorder?top=5&skip=0&search=$search&tipoDocumento=factura_compra');
+  Future<ApiResponseList<ResultadoOrdenVentaModel>> obtenerEntregaBySearch(String search) async {
+    final url = Uri.parse('$_baseUrl/delivery?top=5&skip=0&search=$search&tipoDocumento=entregas');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -104,9 +105,10 @@ class FacturaCompraRepository {
     }
   }
 
+  
   // Nuevo método para obtener una factura de compra específica por docNum
-  Future<ApiResponse<ResultadoOrdenVentaModel>> obtenerFacturaPorDocNum(String docNum, String tipoDocumento) async {
-    final url = Uri.parse('$_baseUrl/purchaseorder/GetPurchaseOrderByDocNum/$docNum/$tipoDocumento');
+  Future<ApiResponse<ResultadoOrdenVentaModel>> obtenerEntregaPorDocNum(String docNum, String tipoDocumento) async {
+    final url = Uri.parse('$_baseUrl/delivery/GetDeliveryByDocNum/$docNum/$tipoDocumento');
 
     final token = await _authRepository.getToken();
     final tokenSAP = await _authRepository.getTokenSap();

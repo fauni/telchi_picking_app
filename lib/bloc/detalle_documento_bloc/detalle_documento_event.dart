@@ -12,11 +12,12 @@ abstract class DetalleDocumentoEvent extends Equatable{
 class ActualizarCantidadPorDetalle extends DetalleDocumentoEvent {
   final int idDetalle;
   final double cantidadAgregada;
+  final String? fechaVencimiento;
 
-  const ActualizarCantidadPorDetalle({required this.idDetalle, required this.cantidadAgregada });
+  const ActualizarCantidadPorDetalle({required this.idDetalle, required this.cantidadAgregada, this.fechaVencimiento });
 
   @override
-  List<Object?> get props => [idDetalle, cantidadAgregada];
+  List<Object?> get props => [idDetalle, cantidadAgregada, fechaVencimiento];
 }
 
 class ReiniciarCantidadPorDetalle extends DetalleDocumentoEvent {

@@ -65,6 +65,22 @@ class TipoDocumentoScreen extends StatelessWidget {
                     onPressed: () {
                       context.push('/solicitud-traslado');
                     },
+                  ),
+                  ButtonTipoDocumento(
+                    icon: Icons.shopping_cart,
+                    label: "ORDEN DE \n COMPRA",
+                    color: Theme.of(context).colorScheme.primary,
+                    onPressed: () {
+                      context.push('/ordenventa', extra: 'orden_compra');
+                    },
+                  ),
+                  ButtonTipoDocumento(
+                    icon: Icons.airport_shuttle_outlined,
+                    label: "ENTREGAS",
+                    color: Theme.of(context).colorScheme.primary,
+                    onPressed: () {
+                      context.push('/ordenventa', extra: 'entregas');
+                    },
                   )
                 ],
               ),

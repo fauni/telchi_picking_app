@@ -9,10 +9,8 @@ class DetalleDocumentoRepository {
   final String _baseUrl = Environment.UrlApi;
   final AuthRepository _authRepository = AuthRepository();
 
-  Future<ApiResponse> actualizarCantidad(
-      {required int idDetalle, required double cantidadAgregada}) async {
-    final url = Uri.parse(
-        '$_baseUrl/DetalleDocumento/detalle/$idDetalle/actualizar-cantidad');
+  Future<ApiResponse> actualizarCantidad({required int idDetalle, required double cantidadAgregada, String? fechaVencimiento}) async {
+    final url = Uri.parse('$_baseUrl/DetalleDocumento/detalle/$idDetalle/actualizar-cantidad');
 
     // Recuperamos los tokens de sharedPreferences
     final token = await _authRepository.getToken();
@@ -28,6 +26,7 @@ class DetalleDocumentoRepository {
     final body = jsonEncode({
       'cantidadAgregada': cantidadAgregada,
       'usuario': usuario!.usuarioNombre,
+      'fechaVencimiento': fechaVencimiento,
     });
 
     try {

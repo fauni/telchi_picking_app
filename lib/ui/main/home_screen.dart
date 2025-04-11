@@ -54,15 +54,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> playSound(int id) async {
     // await _audioCache.play('audio/scan.mp3');
     try {
-      if(id == 0){
-        await _audioPlayer.play(AssetSource('sounds/error.mp3'));
+      if (id == 0) {
+        await _audioPlayer.play(AssetSource('sounds/incorrecto.mp3'));
+      } else if(id == 1){
+        await _audioPlayer.play(AssetSource('sounds/correcto.mp3'));
       } else {
-        await _audioPlayer.play(AssetSource('sounds/success.mp3'));
+        await _audioPlayer.play(AssetSource('sounds/complete.mp3'));
       }
     } catch (e) {
       print('Error al reproducir el sonido: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -79,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // backgroundColor: Theme.of(context).colorScheme.tertiary,
           actions: [
             // IconButton(onPressed: ()async{
-            //   await playSound(0);
+            //   await playSound(2);
             // }, icon: const Icon(Icons.error),),
             // IconButton(onPressed: ()async{
             //   await playSound(1);
