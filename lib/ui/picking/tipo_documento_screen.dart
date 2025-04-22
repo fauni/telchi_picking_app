@@ -67,6 +67,14 @@ class TipoDocumentoScreen extends StatelessWidget {
                     },
                   ),
                   ButtonTipoDocumento(
+                    icon: Icons.swap_horiz,
+                    label: "TRANSFERENCIA \n DE STOCK",
+                    color: Theme.of(context).colorScheme.primary,
+                    onPressed: () {
+                      context.push('/transferencia-stock');
+                    },
+                  ),
+                  ButtonTipoDocumento(
                     icon: Icons.shopping_cart,
                     label: "ORDEN DE \n COMPRA",
                     color: Theme.of(context).colorScheme.primary,

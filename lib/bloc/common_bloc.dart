@@ -12,7 +12,9 @@ import 'package:picking_app/repository/factura_repository.dart';
 import 'package:picking_app/repository/orden_compra_repository.dart';
 import 'package:picking_app/repository/orden_venta_repository.dart';
 import 'package:picking_app/repository/reporte_repository.dart';
+import 'package:picking_app/repository/reporte_transferecia_stock_repository.dart';
 import 'package:picking_app/repository/solicitud_traslado_repository.dart';
+import 'package:picking_app/repository/transferencia_stock_repository.dart';
 
 class CommonBloc {
   // Instancia del AuthBloc
@@ -28,7 +30,10 @@ class CommonBloc {
   static final AlmacenBloc almacenBloc = AlmacenBloc(AuthRepository());
   static final SolicitudTrasladoBloc solicitudTrasladoBloc = SolicitudTrasladoBloc(SolicitudTrasladoRepository());
   static final DetalleSolicitudTrasladoBloc detalleSolicitudTrasladoBloc = DetalleSolicitudTrasladoBloc(SolicitudTrasladoRepository());
+  static final TransferenciaStockBloc transferenciaStockBloc = TransferenciaStockBloc(TransferenciaStockRepository());
+  static final DetalleTransferenciaStockBloc detalleTransferenciaStockBloc = DetalleTransferenciaStockBloc(TransferenciaStockRepository());
   static final ReporteBloc reporteBloc = ReporteBloc(reporteRepository: ReporteRepository());
+  static final ReporteTransferenciaStockBloc reporteTransferenciaStockBloc = ReporteTransferenciaStockBloc(reporteRepository: ReporteTransfereciaStockRepository());
 
 
   // Lista de BlocProviders para proveer a toda la aplicación
@@ -45,7 +50,10 @@ class CommonBloc {
     BlocProvider<AlmacenBloc>(create: (context) => almacenBloc),
     BlocProvider<SolicitudTrasladoBloc>(create: (context) => solicitudTrasladoBloc),
     BlocProvider<DetalleSolicitudTrasladoBloc>(create: (context) => detalleSolicitudTrasladoBloc),
+    BlocProvider<TransferenciaStockBloc>(create: (context) => transferenciaStockBloc),
+    BlocProvider<DetalleTransferenciaStockBloc>(create: (context) => detalleTransferenciaStockBloc),
     BlocProvider<ReporteBloc>(create: (context) => reporteBloc),
+    BlocProvider<ReporteTransferenciaStockBloc>(create: (context) => reporteTransferenciaStockBloc),
   ];
 
   // Método para cerrar el bloc cuando no se necesite más
@@ -62,7 +70,10 @@ class CommonBloc {
     almacenBloc.close();
     solicitudTrasladoBloc.close();
     detalleSolicitudTrasladoBloc.close();
+    transferenciaStockBloc.close();
+    detalleTransferenciaStockBloc.close();
     reporteBloc.close();
+    reporteTransferenciaStockBloc.close();
   }
   
   static final CommonBloc _instance = CommonBloc._internal();

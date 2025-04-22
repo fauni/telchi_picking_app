@@ -8,7 +8,9 @@ class DocumentoBloc extends Bloc<DocumentoEvent, DocumentoState> {
   DocumentoBloc(this.repository): super(DocumentInitial()){
     on<CreateDocumentFromSAP>(_onCrearDocumentoFromSAP);
     on<CreateDocumentoSolicitudFromSAP>(_onCrearDocumentoSolicitudFromSAP);
+    on<CreateDocumentoTransferenciaStockFromSAP>(_onCrearDocumentoTransferenciaStockFromSAP);
     on<SaveConteoForDocNumToSap>(_onGuardaConteoEnSapPorDocNum);
+    on<SaveConteoTransferenciaStockForDocEntryToSap>(_onGuardaConteoTransferenciaStockEnSapPorDocNum);
   }
 
   Future<void> _onCrearDocumentoFromSAP(CreateDocumentFromSAP event, Emitter<DocumentoState> emit) async {
@@ -47,11 +49,42 @@ class DocumentoBloc extends Bloc<DocumentoEvent, DocumentoState> {
     }
 
   }
+
+  Future<void> _onCrearDocumentoTransferenciaStockFromSAP(CreateDocumentoTransferenciaStockFromSAP event, Emitter<DocumentoState> emit) async {
+    emit(DocumentLoading());
+    try {
+      final response = await repository.crearDocumentoTransferenciaStockDesdeSap(event.docEntry);
+      if(response.isSuccessful && response.resultado != null) {
+        emit(DocumentSuccess(response.resultado!.documentId));
+      } else {
+        final errorMessage = response.errorMessages?.join(', ') ?? 'Error desconocido';
+        emit(DocumentFailure(errorMessage));
+      }
+    } catch(e) {
+      emit(DocumentFailure("Error al crear el documento de transferencia de stock: $e"));
+    }
+
+  }
   
   Future<void> _onGuardaConteoEnSapPorDocNum(SaveConteoForDocNumToSap event, Emitter<DocumentoState> emit) async {
     emit(DocumentLoading());
     try {
       final response = await repository.actualizarConteoDocumentoSap(event.docNum, event.tipoDocumento);
+      if(response.isSuccessful){
+        emit(SaveDocumentToSapSuccess(response.resultado!.message));
+      } else {
+        final errorMessage = response.errorMessages?.join(', ') ?? 'Error desconocido';
+        emit(DocumentFailure(errorMessage));
+      }
+    } catch (e) {
+      emit(DocumentFailure("Error al actualizar coteo en sap: $e"));
+    }
+  }
+
+  Future<void> _onGuardaConteoTransferenciaStockEnSapPorDocNum(SaveConteoTransferenciaStockForDocEntryToSap event, Emitter<DocumentoState> emit) async {
+    emit(DocumentLoading());
+    try {
+      final response = await repository.actualizarConteoDocumentoTransferenciaStockSap(event.docEntry, event.tipoDocumento);
       if(response.isSuccessful){
         emit(SaveDocumentToSapSuccess(response.resultado!.message));
       } else {

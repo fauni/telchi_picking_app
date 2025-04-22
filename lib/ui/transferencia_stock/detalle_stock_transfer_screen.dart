@@ -18,16 +18,16 @@ import 'package:picking_app/ui/widgets/item_list_detalle_solicitud_traslado.dart
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 // ignore: must_be_immutable
-class DetalleSolicitudTrasladoScreen extends StatefulWidget {
-  DetalleSolicitudTrasladoScreen({
+class DetalleTransferenciaStockScreen extends StatefulWidget {
+  DetalleTransferenciaStockScreen({
     super.key, required this.solicitud});
   SolicitudTraslado solicitud;
 
   @override
-  State<DetalleSolicitudTrasladoScreen> createState() => _DetalleSolicitudTrasladoScreenState();
+  State<DetalleTransferenciaStockScreen> createState() => _DetalleTransferenciaStockScreenState();
 }
 
-class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTrasladoScreen> {
+class _DetalleTransferenciaStockScreenState extends State<DetalleTransferenciaStockScreen> {
   TextEditingController controllerSearch = TextEditingController();
 
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -81,8 +81,9 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
   }
 
   refrescarSolicitud(){
-    context.read<DetalleSolicitudTrasladoBloc>().add(LoadSolicitudTrasladoById(
-      id: widget.solicitud.docEntry!));
+    context
+    .read<DetalleTransferenciaStockBloc>()
+    .add(LoadTransferenciaStockById(id: widget.solicitud.docEntry!));
   }
 
   void _showBackDialog() {
@@ -255,7 +256,7 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                     Icons.download), 
                   onPressed: () {
                     context.read<ReporteTransferenciaStockBloc>().add(DownloadReportTransferenciaStockEvent(
-                      tipoDocumento: 'solicitud_traslado',
+                      tipoDocumento: 'transferencia_stock',
                       docEntry: widget.solicitud.docEntry!,
                     ));
                   }
@@ -264,17 +265,17 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
             },
           )
         : const SizedBox(),
-        body: BlocConsumer<DetalleSolicitudTrasladoBloc, DetalleSolicitudTrasladoState>(
+        body: BlocConsumer<DetalleTransferenciaStockBloc, DetalleTransferenciaStockState>(
           listener: (context, state) {
-            if(state is DetalleSolicitudTrasladoByIdLoaded){
+            if(state is DetalleTransferenciaStockByIdLoaded){
               widget.solicitud = state.solicitudTraslado;
               validaEstadoConteo();
             }
           },
           builder: (context, state) {
-            if(state is DetalleSolicitudTrasladoByIdLoading){
+            if(state is DetalleTransferenciaStockByIdLoading){
               return const Center(child: CircularProgressIndicator(),);
-            } else if (state is DetalleSolicitudTrasladoByIdLoaded){
+            } else if (state is DetalleTransferenciaStockByIdLoaded){
               return Column(
                 children: [
                   Expanded(
@@ -294,7 +295,7 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                             children: [
                               const ItemDetalleWidget(
                                   titulo: 'Tipo de Documento',
-                                  valor: 'Solicitud de Traslado'),
+                                  valor: 'Transferencia de Stock'),
                               ItemDetalleWidget(
                                 titulo: 'Número de Documento',
                                 valor: widget.solicitud.docNum.toString(),
@@ -610,7 +611,7 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                         Expanded(
                             child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ListaItemsDetalleSolicitudTraslado(
+                          child: ListaItemsTransferenciaStock(
                             items: filtrarItemsPorEstado(),
                             onItemTap: (p0) async {
                               final detalleEncontrado = widget
@@ -722,13 +723,11 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                           : conteoFinalizado
                               ? ElevatedButton.icon(
                                   onPressed: () async {
-                                    // TODO: Aqui se guarda el conteo en SAP revisar
                                     context.read<DocumentoBloc>().add(
-                                          SaveConteoForDocNumToSap(
-                                              docNum: widget.solicitud.docNum
-                                                  .toString(),
-                                              tipoDocumento: 'solicitud_traslado'),
-                                        );
+                                      SaveConteoTransferenciaStockForDocEntryToSap(
+                                          docEntry: widget.solicitud.docEntry!,
+                                          tipoDocumento: 'transferencia_stock'),
+                                    );
                                   },
                                   label: const Text('ENVIAR CONTEO A SAP'),
                                   icon: const Icon(
@@ -751,7 +750,7 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                                   onPressed: () async {
                                     // TODO: Aqui creamos el documento al iniciar conteo
                                     context.read<DocumentoBloc>().add(
-                                        CreateDocumentoSolicitudFromSAP(
+                                        CreateDocumentoTransferenciaStockFromSAP(
                                           docEntry: widget.solicitud.docEntry.toString()
                                         ));
                                   },
@@ -775,7 +774,7 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
                   )
                 ],
               );
-            } else if(state is DetalleSolicitudTrasladoByIdError){
+            } else if(state is DetalleTransferenciaStockByIdError){
               return Center(
                 child: Text(state.message),
               );
@@ -1115,8 +1114,8 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
 }
 
 // ignore: must_be_immutable
-class ListaItemsDetalleSolicitudTraslado extends StatefulWidget {
-  ListaItemsDetalleSolicitudTraslado({
+class ListaItemsTransferenciaStock extends StatefulWidget {
+  ListaItemsTransferenciaStock({
     super.key,
     required this.items,
     required this.onItemTap,
@@ -1126,12 +1125,12 @@ class ListaItemsDetalleSolicitudTraslado extends StatefulWidget {
   final Function(String) onItemTap;
 
   @override
-  State<ListaItemsDetalleSolicitudTraslado> createState() =>
-      _ListaItemsDetalleSolicitudTrasladoState();
+  State<ListaItemsTransferenciaStock> createState() =>
+      _ListaItemsTransferenciaStockState();
 }
 
-class _ListaItemsDetalleSolicitudTrasladoState
-    extends State<ListaItemsDetalleSolicitudTraslado> {
+class _ListaItemsTransferenciaStockState
+    extends State<ListaItemsTransferenciaStock> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(

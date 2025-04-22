@@ -44,6 +44,18 @@ export 'package:picking_app/bloc/detalle_solicitud_traslado_bloc/detalle_solicit
 export 'package:picking_app/bloc/detalle_solicitud_traslado_bloc/detalle_solicitud_traslado_event.dart';
 export 'package:picking_app/bloc/detalle_solicitud_traslado_bloc/detalle_solicitud_traslado_state.dart';
 
+export 'package:picking_app/bloc/transferencia_stock_bloc/transferencia_stock_bloc.dart';
+export 'package:picking_app/bloc/transferencia_stock_bloc/transferencia_stock_event.dart';
+export 'package:picking_app/bloc/transferencia_stock_bloc/transferencia_stock_state.dart';
+
+export 'package:picking_app/bloc/detalle_transferencia_stock_bloc/detalle_transferencia_stock_bloc.dart';
+export 'package:picking_app/bloc/detalle_transferencia_stock_bloc/detalle_transferencia_stock_event.dart';
+export 'package:picking_app/bloc/detalle_transferencia_stock_bloc/detalle_transferencia_stock_state.dart';
+
 export 'package:picking_app/bloc/reporte_bloc/reporte_bloc.dart';
 export 'package:picking_app/bloc/reporte_bloc/reporte_event.dart';
 export 'package:picking_app/bloc/reporte_bloc/reporte_state.dart';
+
+export 'package:picking_app/bloc/reporte_transferencia_stock_bloc/reporte_transferencia_stock_bloc.dart';
+export 'package:picking_app/bloc/reporte_transferencia_stock_bloc/reporte_transferencia_stock_event.dart';
+export 'package:picking_app/bloc/reporte_transferencia_stock_bloc/reporte_transferencia_stock_state.dart';

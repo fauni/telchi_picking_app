@@ -17,6 +17,8 @@ import 'package:picking_app/ui/picking/tipo_documento_screen.dart';
 import 'package:picking_app/ui/solicitud_traslado/detalle_solicitud_traslado_screen.dart';
 import 'package:picking_app/ui/solicitud_traslado/lista_solicitud_traslado_screen.dart';
 import 'package:picking_app/ui/tipo_documento/buscar_orden_venta_screen.dart';
+import 'package:picking_app/ui/transferencia_stock/detalle_stock_transfer_screen.dart';
+import 'package:picking_app/ui/transferencia_stock/lista_transferencia_stock_screen.dart';
 import 'package:picking_app/utils/go_router_refresh_notifier.dart';
 
 import '../../bloc/bloc.dart';
@@ -59,6 +61,12 @@ GoRouter createAppRouter(BuildContext context){
         }
       ),
       GoRoute(
+        path: '/transferencia-stock',
+        builder: (context, state) {
+          return const ListaTransferenciaStockScreen();
+        }
+      ),
+      GoRoute(
         path: '/conteo',
         builder: (context, state) {
           return const ListarConteoScreen();
@@ -93,6 +101,13 @@ GoRouter createAppRouter(BuildContext context){
         builder: (context, state) {
           SolicitudTraslado data = state.extra as SolicitudTraslado;
           return DetalleSolicitudTrasladoScreen(solicitud: data);
+        },
+      ),
+      GoRoute(
+        path: '/detalletransferenciastock',
+        builder: (context, state) {
+          SolicitudTraslado data = state.extra as SolicitudTraslado;
+          return DetalleTransferenciaStockScreen(solicitud: data);
         },
       ),
       GoRoute(
