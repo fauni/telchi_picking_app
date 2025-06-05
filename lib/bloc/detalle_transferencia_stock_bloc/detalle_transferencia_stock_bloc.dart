@@ -16,7 +16,11 @@ class DetalleTransferenciaStockBloc extends Bloc<DetalleTransferenciaStockEvent,
 
     try {
       final solicitudTraslado = await repository.obtenerTransferenciaStockPorId(event.id);
-      emit(DetalleTransferenciaStockByIdLoaded(solicitudTraslado: solicitudTraslado.resultado!));
+      if (!solicitudTraslado.isSuccessful){
+        emit(UnauthorizedErrorTransferenciaStock());
+      } else {
+        emit(DetalleTransferenciaStockByIdLoaded(solicitudTraslado: solicitudTraslado.resultado!));
+      }
     } catch (e) {
       emit(DetalleTransferenciaStockByIdError(message: e.toString()));
     }

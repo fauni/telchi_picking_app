@@ -23,3 +23,4 @@ class DetalleTransferenciaStockByIdError extends DetalleTransferenciaStockState 
   @override
   List<Object> get props => [message];
 }
+class UnauthorizedErrorTransferenciaStock extends DetalleTransferenciaStockState{}

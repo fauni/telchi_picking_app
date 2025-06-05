@@ -269,6 +269,8 @@ class _DetalleSolicitudTrasladoScreenState extends State<DetalleSolicitudTraslad
             if(state is DetalleSolicitudTrasladoByIdLoaded){
               widget.solicitud = state.solicitudTraslado;
               validaEstadoConteo();
+            } else if (state is UnauthorizedErrorSolicitudTraslado){
+              context.go('/login');
             }
           },
           builder: (context, state) {

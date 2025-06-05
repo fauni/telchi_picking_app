@@ -81,9 +81,7 @@ class _DetalleTransferenciaStockScreenState extends State<DetalleTransferenciaSt
   }
 
   refrescarSolicitud(){
-    context
-    .read<DetalleTransferenciaStockBloc>()
-    .add(LoadTransferenciaStockById(id: widget.solicitud.docEntry!));
+    context.read<DetalleTransferenciaStockBloc>().add(LoadTransferenciaStockById(id: widget.solicitud.docEntry!));
   }
 
   void _showBackDialog() {
@@ -270,6 +268,9 @@ class _DetalleTransferenciaStockScreenState extends State<DetalleTransferenciaSt
             if(state is DetalleTransferenciaStockByIdLoaded){
               widget.solicitud = state.solicitudTraslado;
               validaEstadoConteo();
+            } else if (state is UnauthorizedErrorTransferenciaStock){
+              // Redirigir al login
+              context.go('/login');
             }
           },
           builder: (context, state) {
@@ -1022,26 +1023,27 @@ class _DetalleTransferenciaStockScreenState extends State<DetalleTransferenciaSt
                           ),
                         ),
                         const SizedBox(width: 5,),
-                        BlocConsumer<DetalleDocumentoBloc,
-                            DetalleDocumentoState>(listener: (context, state) {
-                          if (state is DetalleDocumentoLoading) {
-                            // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
-                          } else if (state is DetalleDocumentoSuccess) {
-                            if(detalle.quantity == (double.tryParse(cantidadController.text)! + detalleConteo.cantidadContada!)) {
-                              playSound(2);
+                        BlocConsumer<DetalleDocumentoBloc, DetalleDocumentoState>(
+                          listener: (context, state) async {
+                            if (state is DetalleDocumentoLoading) {
+                              // GenericDialogLoading.show(context: context, message: 'Actualizando Cantidad');
+                            } else if (state is DetalleDocumentoSuccess) {
+                              if(detalle.quantity == (double.tryParse(cantidadController.text)! + detalleConteo.cantidadContada!)) {
+                                playSound(2);
+                              }
+                              Navigator.of(context).pop(); // Cerrar el diálogo
+                              await Future.delayed(const Duration(milliseconds: 1000));
+                              refrescarSolicitud();
+                            } else if (state is DetalleDocumentoError) {
+                              // Muestra un mensaje de error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(state.error),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
                             }
-                            Navigator.of(context).pop(); // Cerrar el diálogo
-                            refrescarSolicitud();
-                          } else if (state is DetalleDocumentoError) {
-                            // Muestra un mensaje de error
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(state.error),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }, builder: (context, state) {
+                          }, builder: (context, state) {
                           if (state is DetalleDocumentoLoading) {
                             return const CircularProgressIndicator();
                           }

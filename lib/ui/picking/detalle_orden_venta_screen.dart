@@ -616,33 +616,25 @@ class _DetalleOrdenVentaScreenState extends State<DetalleOrdenVentaScreen> {
                           height: 5,
                         ),
                         Expanded(
-                            child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ListaItemsDetalleOrdenVenta(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: ListaItemsDetalleOrdenVenta(
                             items: filtrarItemsPorEstado(),
                             onItemTap: (p0) async {
-                              final detalleEncontrado = widget
-                                  .orden.documentLines!
+                              final detalleEncontrado = widget.orden.documentLines!
                                   .firstWhere((item) => item.itemCode == p0,
                                       orElse: () => DocumentLineOrdenVenta());
-                              DetalleDocumento detalleConteoEncontrado =
-                                  DetalleDocumento();
+                              DetalleDocumento detalleConteoEncontrado = DetalleDocumento();
                               if (widget.orden.documento != null) {
-                                detalleConteoEncontrado = widget
-                                    .orden.documento!.detalles!
+                                detalleConteoEncontrado = widget.orden.documento!.detalles!
                                     .firstWhere((item) => item.codigoItem == p0,
                                         orElse: () => DetalleDocumento());
                               }
 
                               if (detalleEncontrado.itemCode != null) {
                                 if (conteoIniciado == true ||
-                                    detalleEncontrado
-                                            .detalleDocumento?.estado ==
-                                        'Completado') {
-                                  final result = await _mostrarDialogoCantidad(
-                                      context,
-                                      detalleEncontrado,
-                                      detalleConteoEncontrado);
+                                    detalleEncontrado.detalleDocumento?.estado == 'Completado') {
+                                  final result = await _mostrarDialogoCantidad(context, detalleEncontrado, detalleConteoEncontrado);
                                   setState(() {});
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(

@@ -78,7 +78,7 @@ class TransferenciaStockRepository {
           data,
           (item) => SolicitudTraslado.fromJson(item),
         );
-      } else {
+      } else {        
         return ApiResponse<SolicitudTraslado>(
           isSuccessful: false,
           statusCode: response.statusCode

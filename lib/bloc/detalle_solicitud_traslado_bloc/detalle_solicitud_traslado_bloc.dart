@@ -16,7 +16,11 @@ class DetalleSolicitudTrasladoBloc extends Bloc<DetalleSolicitudTrasladoEvent, D
 
     try {
       final solicitudTraslado = await repository.obtenerSolicitudTrasladoPorId(event.id);
-      emit(DetalleSolicitudTrasladoByIdLoaded(solicitudTraslado: solicitudTraslado.resultado!));
+      if (!solicitudTraslado.isSuccessful){
+        emit(UnauthorizedErrorSolicitudTraslado());
+      } else {
+        emit(DetalleSolicitudTrasladoByIdLoaded(solicitudTraslado: solicitudTraslado.resultado!));
+      }
     } catch (e) {
       emit(DetalleSolicitudTrasladoByIdError(message: e.toString()));
     }

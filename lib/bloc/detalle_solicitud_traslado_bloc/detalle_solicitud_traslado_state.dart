@@ -23,3 +23,4 @@ class DetalleSolicitudTrasladoByIdError extends DetalleSolicitudTrasladoState {
   @override
   List<Object> get props => [message];
 }
+class UnauthorizedErrorSolicitudTraslado extends DetalleSolicitudTrasladoState{}

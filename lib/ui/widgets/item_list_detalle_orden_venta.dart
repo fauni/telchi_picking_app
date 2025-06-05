@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:picking_app/models/picking/documento_model.dart';
 import 'package:picking_app/models/venta/resultado_orden_venta_model.dart';
 
 // ignore: must_be_immutable
